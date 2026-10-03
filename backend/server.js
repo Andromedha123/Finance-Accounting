@@ -952,26 +952,60 @@ app.delete('/api/categories/:id', requireRole('admin'), async (req, res) => {
 
   try {
 
-    const id = clean(req.params.id);
+    const identifier = clean(req.params.id);
 
-    await pool.query(
+    if (!identifier) {
+      return res.status(400).json({
+        message: 'ID atau nama kategori wajib diisi.'
+      });
+    }
+
+    const result = await pool.query(
       `
       DELETE FROM categories
       WHERE id = $1
+         OR name = $1
+      RETURNING id, name
       `,
-      [id]
+      [identifier]
     );
 
-    res.json({
-      success: true
+    if (!result.rowCount) {
+      return res.status(404).json({
+        message: 'Kategori tidak ditemukan.'
+      });
+    }
+
+    try {
+      await writeAudit(
+        req,
+        'DELETE',
+        'categories',
+        `Kategori "${result.rows[0].name}" dihapus.`,
+        result.rows[0].id
+      );
+    } catch (auditError) {
+      console.error(
+        'Category delete audit error:',
+        auditError.message
+      );
+    }
+
+    return res.json({
+      success: true,
+      deleted: result.rows[0]
     });
 
   } catch (error) {
 
-    console.error(error);
+    console.error(
+      'DELETE /api/categories/:id:',
+      error
+    );
 
-    res.status(500).json({
-      message: 'Gagal menghapus kategori.'
+    return res.status(500).json({
+      message: 'Gagal menghapus kategori.',
+      error: error.message
     });
   }
 });
