@@ -1,11 +1,13 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 
 const express = require('express');
 const path = require('path');
 const helmet = require('helmet');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
+
 const pool = require('./db');
+
 const {
   createSessionMiddleware,
   requireAuth,
@@ -22,10 +24,7 @@ const app = express();
   Trust 1 proxy hop agar X-Forwarded-For dan
   X-Forwarded-Proto dapat diproses dengan benar.
 */
-app.use('/api', apiLimiter);
 app.set('trust proxy', 1);
-
-const PORT = process.env.PORT || 3000;
 
 /* =========================================================
    MIDDLEWARE
@@ -62,7 +61,7 @@ app.use('/api', apiLimiter);
 
 app.use(createSessionMiddleware());
 
-
+const PORT = process.env.PORT || 3000;
 /* =========================================================
    HELPER
 ========================================================= */

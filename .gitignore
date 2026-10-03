@@ -7,3 +7,6 @@ backup/
 *.log
 
 .vercel/
+
+.vercel
+.env*
