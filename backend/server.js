@@ -2271,7 +2271,7 @@ const frontendPath =
   path.join(
     __dirname,
     '..',
-    'frontend'
+    'public'
   );
 
 // Halaman login bersifat publik. Aplikasi utama wajib login.
