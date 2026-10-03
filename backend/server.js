@@ -17,6 +17,14 @@ const {
 
 const app = express();
 
+/*
+  Vercel menjalankan Express di belakang reverse proxy.
+  Trust 1 proxy hop agar X-Forwarded-For dan
+  X-Forwarded-Proto dapat diproses dengan benar.
+*/
+app.use('/api', apiLimiter);
+app.set('trust proxy', 1);
+
 const PORT = process.env.PORT || 3000;
 
 /* =========================================================
