@@ -1,0 +1,36 @@
+# SPPG Finance - PostgreSQL
+
+## Struktur
+sppg-finance-postgres/
+├── frontend/
+│   └── index.html
+├── backend/
+│   ├── server.js
+│   └── db.js
+├── database/
+│   └── schema.sql
+├── .env.example
+├── .gitignore
+├── package.json
+└── README.md
+
+## Menjalankan
+
+1. Buat database PostgreSQL:
+   CREATE DATABASE sppg_finance;
+
+2. Jalankan database/schema.sql pada database sppg_finance.
+
+3. Copy .env.example menjadi .env lalu isi password PostgreSQL.
+
+4. Buka terminal pada root project:
+   npm install
+
+5. Jalankan:
+   npm start
+
+6. Buka:
+   http://localhost:3000
+
+## Catatan
+Jangan memasukkan .env ke GitHub. File .env sudah dikecualikan oleh .gitignore.

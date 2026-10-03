@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - SPPG Finance</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen bg-slate-100 flex items-center justify-center p-5">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+      <div class="bg-slate-900 p-7 text-white">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center font-bold text-xl">S</div>
+          <div>
+            <h1 class="font-bold text-xl">SPPG Finance</h1>
+            <p class="text-sm text-slate-400">Invoice & Keuangan</p>
+          </div>
+        </div>
+      </div>
+
+      <form id="loginForm" class="p-7 space-y-5">
+        <div>
+          <h2 class="text-xl font-bold text-slate-800">Masuk ke sistem</h2>
+          <p class="text-sm text-slate-500 mt-1">Gunakan akun yang telah terdaftar.</p>
+        </div>
+
+        <div>
+          <label class="text-sm font-semibold text-slate-700">Username</label>
+          <input id="username" class="mt-2 w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" autocomplete="username" required>
+        </div>
+
+        <div>
+          <label class="text-sm font-semibold text-slate-700">Password</label>
+          <input id="password" type="password" class="mt-2 w-full border border-slate-300 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-200" autocomplete="current-password" required>
+        </div>
+
+        <div id="errorBox" class="hidden rounded-xl bg-red-50 text-red-700 border border-red-100 px-4 py-3 text-sm"></div>
+
+        <button class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl py-3 flex items-center justify-center gap-2" type="submit">
+          <i data-lucide="log-in" class="w-5 h-5"></i>
+          Masuk
+        </button>
+      </form>
+    </div>
+
+    <p class="text-center text-xs text-slate-400 mt-5">
+      SPPG Finance • Authentication
+    </p>
+  </div>
+
+<script>
+const form = document.getElementById('loginForm');
+const errorBox = document.getElementById('errorBox');
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBox.classList.add('hidden');
+
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        username: document.getElementById('username').value.trim(),
+        password: document.getElementById('password').value
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Login gagal.');
+    }
+
+    window.location.href = '/';
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.classList.remove('hidden');
+  }
+});
+
+lucide.createIcons();
+</script>
+</body>
+</html>

@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>
+    SPPG Finance - Invoice Harian
+  </title>
+  <script src="https://cdn.tailwindcss.com">
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js">
+  </script>
+  <script src="https://unpkg.com/lucide@latest">
+  </script>
+  <style>
+    :root {
+      --primary: #4669FA;
+      --sidebar: #0F172A;
+      --bg: #F8FAFC;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: #334155;
+    }
+
+    .sidebar {
+      width: 270px;
+      transition: .25s;
+    }
+
+    .content {
+      margin-left: 270px;
+      transition: .25s;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      margin: 4px 10px;
+      border-radius: 9px;
+      color: #94A3B8;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: #fff;
+      background: rgba(255, 255, 255, .09);
+    }
+
+    .nav-item.active {
+      background: #4669FA;
+      box-shadow: 0 7px 20px rgba(70, 105, 250, .25);
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #E2E8F0;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .04);
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 10px 12px;
+      outline: none;
+      background: #fff;
+    }
+
+    .input:focus {
+      border-color: #4669FA;
+      box-shadow: 0 0 0 3px rgba(70, 105, 250, .10);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #4669FA;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #3656df;
+    }
+
+    .btn-light {
+      background: #F1F5F9;
+      color: #475569;
+    }
+
+    .btn-danger {
+      background: #FEF2F2;
+      color: #DC2626;
+    }
+
+    .badge {
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .stat-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .table-wrap {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      color: #64748B;
+      background: #F8FAFC;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px;
+      border-top: 1px solid #E2E8F0;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(15, 23, 42, .55);
+      padding: 20px;
+      overflow: auto;
+    }
+
+    .modal-bg.show {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .modal {
+      width: min(100%, 1000px);
+      margin: 30px auto;
+      background: white;
+      border-radius: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 100;
+      transform: translateY(120px);
+      opacity: 0;
+      transition: .3s;
+      background: #0F172A;
+      color: white;
+      padding: 12px 18px;
+      border-radius: 9px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .2);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    @media(max-width:900px) {
+      .sidebar {
+        transform: translateX(-100%);
+        z-index: 60;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .content {
+        margin-left: 0;
+      }
+    }
+
+
+    /* Enhanced action dialogs */
+    .action-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      background: rgba(15, 23, 42, .62);
+      backdrop-filter: blur(4px);
+      padding: 20px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-modal.show {
+      display: flex;
+    }
+
+    .action-dialog {
+      width: min(100%, 430px);
+      background: #fff;
+      border-radius: 20px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 25px 70px rgba(15, 23, 42, .25);
+      animation: dialogIn .22s ease-out;
+    }
+
+    .action-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 18px;
+      margin: 0 auto 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-icon.success {
+      background: #ECFDF5;
+      color: #059669;
+    }
+
+    .action-icon.danger {
+      background: #FEF2F2;
+      color: #DC2626;
+    }
+
+    .action-icon.warning {
+      background: #FFFBEB;
+      color: #D97706;
+    }
+
+    .action-icon.info {
+      background: #EFF6FF;
+      color: #2563EB;
+    }
+
+    .action-dialog h3 {
+      margin: 0;
+      color: #0F172A;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .action-dialog p {
+      margin: 8px 0 20px;
+      color: #64748B;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .action-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .action-actions .btn {
+      min-width: 120px;
+    }
+
+    .btn-success {
+      background: #059669;
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: #475569;
+      border: 1px solid #CBD5E1;
+    }
+
+    .btn-outline:hover {
+      background: #F8FAFC;
+    }
+
+    .master-search {
+      max-width: 260px;
+    }
+
+    .master-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    @keyframes dialogIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+
+      #printArea,
+      #printArea * {
+        visibility: visible !important;
+      }
+
+      #printArea {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        background: #fff;
+        padding: 18px;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      @page {
+        size: A4 landscape;
+        margin: 10mm;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <aside class="sidebar fixed top-0 left-0 h-screen bg-slate-900 text-white overflow-y-auto" id="sidebar">
+    <div class="px-6 py-6 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center font-bold">
+          S
+        </div>
+        <div>
+          <div class="font-bold text-lg">
+            SPPG Finance
+          </div>
+          <div class="text-xs text-slate-400">
+            Invoice &amp; Keuangan
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="px-4 pt-5 pb-2 text-[11px] uppercase tracking-widest text-slate-500">
+      Menu Utama
+    </div>
+    <div class="nav-item active" data-page="dashboard">
+      <i data-lucide="layout-dashboard">
+      </i>
+      <span>
+        Dashboard
+      </span>
+    </div>
+    <div class="nav-item" data-page="invoice">
+      <i data-lucide="receipt-text">
+      </i>
+      <span>
+        Invoice Harian
+      </span>
+    </div>
+    <div class="nav-item" data-page="laporan">
+      <i data-lucide="bar-chart-3">
+      </i>
+      <span>
+        Laporan Keuangan
+      </span>
+    </div>
+    <div class="px-4 pt-6 pb-2 text-[11px] uppercase tracking-widest text-slate-500">
+      Master Data
+    </div>
+    <div class="nav-item" data-page="supplier">
+      <i data-lucide="truck">
+      </i>
+      <span>
+        Supplier
+      </span>
+    </div>
+    <div class="nav-item" data-page="kategori">
+      <i data-lucide="tags">
+      </i>
+      <span>
+        Kategori
+      </span>
+    </div>
+    <div class="nav-item" data-page="bahan">
+      <i data-lucide="carrot">
+      </i>
+      <span>
+        Bahan Baku
+      </span>
+    </div>
+    <div class="nav-item" data-page="operasional">
+      <i data-lucide="package">
+      </i>
+      <span>
+        Barang Operasional
+      </span>
+    </div>
+    <div class="nav-item" data-page="pengaturan">
+      <i data-lucide="settings">
+      </i>
+      <span>
+        Pengaturan SPPG
+      </span>
+    </div>
+    <div class="px-4 pt-6 pb-2 text-[11px] uppercase tracking-widest text-slate-500 auth-admin-menu">
+      Administrasi
+    </div>
+    <div class="nav-item auth-admin-menu" data-page="users" data-roles="admin">
+      <i data-lucide="users"></i><span>Manajemen User</span>
+    </div>
+    <div class="nav-item auth-audit-menu" data-page="audit" data-roles="admin,auditor">
+      <i data-lucide="shield-check"></i><span>Audit Trail</span>
+    </div>
+    <div class="p-4 mt-5">
+      <div class="rounded-xl bg-slate-800 p-4 text-xs text-slate-400">
+        Data tersimpan di PostgreSQL. Backup dan restore hanya tersedia untuk Admin.
+      </div>
+    </div>
+  </aside>
+  <main class="content min-h-screen">
+    <header
+      class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 px-4 md:px-7 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <button class="md:hidden btn btn-light p-2" id="menuBtn">
+          <i data-lucide="menu">
+          </i>
+        </button>
+        <div>
+          <h1 class="font-bold text-slate-800 text-xl" id="pageTitle">
+            Dashboard
+          </h1>
+          <p class="text-xs text-slate-500" id="todayText">
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <div id="currentUserBox" class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center"><i data-lucide="user" class="w-4 h-4"></i></div>
+          <div class="leading-tight"><div id="currentUserName" class="text-xs font-bold text-slate-700">-</div><div id="currentUserRole" class="text-[10px] uppercase text-slate-400">-</div></div>
+        </div>
+        <button class="btn btn-light" onclick="logoutApp()" title="Logout"><i data-lucide="log-out"></i><span class="hidden sm:inline">Logout</span></button>
+        <button class="btn btn-primary" onclick="openInvoiceModal()">
+          <i data-lucide="plus">
+          </i>
+          <span class="hidden sm:inline">
+            Invoice Baru
+          </span>
+        </button>
+      </div>
+    </header>
+    <div class="p-4 md:p-7">
+      <!-- DASHBOARD -->
+      <section class="page active" id="dashboard">
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <div class="card p-5 flex justify-between">
+            <div>
+              <p class="text-sm text-slate-500">
+                Pengeluaran Hari Ini
+              </p>
+              <h3 class="text-xl font-bold mt-2" id="statToday">
+                Rp0
+              </h3>
+              <p class="text-xs text-slate-400 mt-2" id="statTodayCount">
+                0 invoice
+              </p>
+            </div>
+            <div class="stat-icon bg-red-50 text-red-500">
+              <i data-lucide="wallet-cards">
+              </i>
+            </div>
+          </div>
+          <div class="card p-5 flex justify-between">
+            <div>
+              <p class="text-sm text-slate-500">
+                Minggu Ini
+              </p>
+              <h3 class="text-xl font-bold mt-2" id="statWeek">
+                Rp0
+              </h3>
+              <p class="text-xs text-slate-400 mt-2">
+                Total pengeluaran
+              </p>
+            </div>
+            <div class="stat-icon bg-blue-50 text-blue-600">
+              <i data-lucide="calendar-days">
+              </i>
+            </div>
+          </div>
+          <div class="card p-5 flex justify-between">
+            <div>
+              <p class="text-sm text-slate-500">
+                Bulan Ini
+              </p>
+              <h3 class="text-xl font-bold mt-2" id="statMonth">
+                Rp0
+              </h3>
+              <p class="text-xs text-slate-400 mt-2">
+                Total pengeluaran
+              </p>
+            </div>
+            <div class="stat-icon bg-emerald-50 text-emerald-600">
+              <i data-lucide="circle-dollar-sign">
+              </i>
+            </div>
+          </div>
+          <div class="card p-5 flex justify-between">
+            <div>
+              <p class="text-sm text-slate-500">
+                Total Invoice
+              </p>
+              <h3 class="text-xl font-bold mt-2" id="statInvoices">
+                0
+              </h3>
+              <p class="text-xs text-slate-400 mt-2">
+                Seluruh transaksi
+              </p>
+            </div>
+            <div class="stat-icon bg-violet-50 text-violet-600">
+              <i data-lucide="files">
+              </i>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          <div class="card p-5 xl:col-span-2">
+            <div class="flex justify-between mb-5">
+              <div>
+                <h3 class="font-bold text-slate-800">
+                  Pengeluaran 7 Hari Terakhir
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Tren transaksi invoice
+                </p>
+              </div>
+            </div>
+            <div class="h-72">
+              <canvas id="expenseChart">
+              </canvas>
+            </div>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-bold text-slate-800">
+              Pengeluaran per Kategori
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">
+              Bulan berjalan
+            </p>
+            <div class="h-64">
+              <canvas id="categoryChart">
+              </canvas>
+            </div>
+          </div>
+        </div>
+        <div class="card mt-5">
+          <div class="p-5 flex items-center justify-between">
+            <div>
+              <h3 class="font-bold">
+                Invoice Terbaru
+              </h3>
+              <p class="text-xs text-slate-500">
+                10 transaksi terakhir
+              </p>
+            </div>
+            <button class="text-sm font-semibold text-blue-600" onclick="showPage('invoice')">
+              Lihat semua
+            </button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    No Invoice
+                  </th>
+                  <th>
+                    Tanggal
+                  </th>
+                  <th>
+                    Supplier
+                  </th>
+                  <th>
+                    Kategori
+                  </th>
+                  <th>
+                    Total
+                  </th>
+                  <th>
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="recentTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- INVOICE -->
+      <section class="page" id="invoice">
+        <div class="card p-5 mb-5">
+          <div class="flex flex-col lg:flex-row gap-3 lg:items-end">
+            <div class="flex-1">
+              <label class="text-xs font-semibold">
+                Cari Invoice / Supplier
+              </label>
+              <input class="input mt-1" id="invoiceSearch" oninput="renderInvoices()"
+                placeholder="Ketik kata kunci..." />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Dari
+              </label>
+              <input class="input mt-1" id="invoiceFrom" onchange="renderInvoices()" type="date" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Sampai
+              </label>
+              <input class="input mt-1" id="invoiceTo" onchange="renderInvoices()" type="date" />
+            </div>
+            <button class="btn btn-light" onclick="resetInvoiceFilter()">
+              Reset
+            </button>
+            <button class="btn btn-primary" onclick="openInvoiceModal()">
+              <i data-lucide="plus">
+              </i>
+              Tambah Invoice
+            </button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="p-5">
+            <h3 class="font-bold">
+              Daftar Invoice
+            </h3>
+            <p class="text-xs text-slate-500">
+              Kelola transaksi pengeluaran harian SPPG
+            </p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>
+                    No Invoice
+                  </th>
+                  <th>
+                    Tanggal
+                  </th>
+                  <th>
+                    Supplier
+                  </th>
+                  <th>
+                    Kategori
+                  </th>
+                  <th>
+                    Item
+                  </th>
+                  <th>
+                    Total
+                  </th>
+                  <th>
+                    Status
+                  </th>
+                  <th>
+                    Aksi
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="invoiceTable">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+      <!-- LAPORAN -->
+      <section class="page" id="laporan">
+        <div class="card p-5 mb-5 no-print">
+          <div class="flex flex-col xl:flex-row gap-4 xl:items-end">
+            <div>
+              <label class="text-xs font-semibold">
+                Jenis Periode
+              </label>
+              <select class="input mt-1" id="reportPeriod" onchange="applyPreset()">
+                <option value="today">
+                  Harian
+                </option>
+                <option value="week">
+                  Mingguan
+                </option>
+                <option selected="" value="month">
+                  Bulanan
+                </option>
+                <option value="3month">
+                  3 Bulan
+                </option>
+                <option value="6month">
+                  6 Bulan
+                </option>
+                <option value="year">
+                  Tahunan
+                </option>
+                <option value="custom">
+                  Custom
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Tanggal Awal
+              </label>
+              <input class="input mt-1" id="reportFrom" type="date" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Tanggal Akhir
+              </label>
+              <input class="input mt-1" id="reportTo" type="date" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Kategori
+              </label>
+              <select class="input mt-1" id="reportCategory">
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="generateReport()">
+              <i data-lucide="filter">
+              </i>
+              Generate
+            </button>
+            <button class="btn bg-red-600 text-white" onclick="exportPDF()">
+              <i data-lucide="file-text">
+              </i>
+              Export PDF
+            </button>
+          </div>
+        </div>
+        <div id="printArea">
+          <div class="card p-6">
+            <div class="flex justify-between items-start border-b pb-5">
+              <div>
+                <h2 class="text-xl font-bold" id="reportSPPG">
+                  SPPG
+                </h2>
+                <p class="text-sm text-slate-500" id="reportAddress">
+                </p>
+              </div>
+              <div class="text-right">
+                <h2 class="font-bold text-lg">
+                  LAPORAN KEUANGAN
+                </h2>
+                <p class="text-sm text-slate-500" id="reportPeriodText">
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="text-xs text-slate-500">
+                  Jumlah Invoice
+                </p>
+                <h3 class="font-bold text-xl" id="reportCount">
+                  0
+                </h3>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="text-xs text-slate-500">
+                  Total Pengeluaran
+                </p>
+                <h3 class="font-bold text-xl" id="reportTotal">
+                  Rp0
+                </h3>
+              </div>
+              <div class="rounded-xl bg-slate-50 p-4">
+                <p class="text-xs text-slate-500">
+                  Rata-rata / Invoice
+                </p>
+                <h3 class="font-bold text-xl" id="reportAvg">
+                  Rp0
+                </h3>
+              </div>
+            </div>
+            <h3 class="font-bold mb-3">
+              Rekap Kategori
+            </h3>
+            <div class="table-wrap mb-6">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      Kategori
+                    </th>
+                    <th>
+                      Jumlah Invoice
+                    </th>
+                    <th>
+                      Total
+                    </th>
+                    <th>
+                      Persentase
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="reportCategoryTable">
+                </tbody>
+              </table>
+            </div>
+            <h3 class="font-bold mb-3">
+              Detail Transaksi
+            </h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      No
+                    </th>
+                    <th>
+                      Tanggal
+                    </th>
+                    <th>
+                      No Invoice
+                    </th>
+                    <th>
+                      Supplier
+                    </th>
+                    <th>
+                      Kategori
+                    </th>
+                    <th>
+                      Jumlah Item
+                    </th>
+                    <th>
+                      Total
+                    </th>
+                    <th>
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="reportTable">
+                </tbody>
+              </table>
+            </div>
+            <div class="mt-8 grid grid-cols-2 gap-20 text-center text-sm">
+              <div>
+                <p>
+                  Dibuat oleh,
+                </p>
+                <div class="h-16">
+                </div>
+                <p class="font-semibold" id="reportPrepared">
+                  ________________
+                </p>
+              </div>
+              <div>
+                <p>
+                  Mengetahui,
+                </p>
+                <div class="h-16">
+                </div>
+                <p class="font-semibold" id="reportApproved">
+                  ________________
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- SUPPLIER -->
+      <section class="page" id="supplier">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="card p-5">
+            <h3 class="font-bold mb-1" id="supplierFormTitle">
+              Tambah Supplier
+            </h3>
+            <p class="text-xs text-slate-500 mb-4" id="supplierFormHint">
+              Tambahkan supplier baru atau edit data supplier yang sudah ada.
+            </p>
+            <form class="space-y-3" id="supplierForm">
+              <input id="supplierId" type="hidden" />
+              <input class="input" id="supplierName" placeholder="Nama supplier" required="" />
+              <input class="input" id="supplierPhone" placeholder="No. telepon" />
+              <textarea class="input" id="supplierAddress" placeholder="Alamat"></textarea>
+              <div class="flex gap-2">
+                <button class="btn btn-primary flex-1" id="supplierSubmitBtn">
+                  <i data-lucide="save"></i>
+                  Simpan Supplier
+                </button>
+                <button class="btn btn-light" onclick="resetSupplierForm()" type="button">
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="card lg:col-span-2">
+            <div class="p-5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-bold">Daftar Supplier</h3>
+                <span class="master-meta" id="supplierCount">0 supplier</span>
+              </div>
+              <div class="flex gap-2">
+                <input class="input master-search" id="supplierSearch" oninput="renderSuppliers()"
+                  placeholder="Cari supplier..." />
+                <button class="btn btn-light" onclick="exportMasterCSV('supplier')" type="button">
+                  <i data-lucide="download"></i> CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      Nama
+                    </th>
+                    <th>
+                      Telepon
+                    </th>
+                    <th>
+                      Alamat
+                    </th>
+                    <th>
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="supplierTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- KATEGORI -->
+      <section class="page" id="kategori">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="card p-5">
+            <h3 class="font-bold mb-1" id="categoryFormTitle">
+              Tambah Kategori
+            </h3>
+            <p class="text-xs text-slate-500 mb-4" id="categoryFormHint">
+              Tambahkan kategori baru atau edit kategori yang sudah ada.
+            </p>
+            <form class="space-y-3" id="categoryForm">
+              <input id="categoryId" type="hidden" />
+              <input class="input" id="categoryName" placeholder="Nama kategori" required="" />
+              <div class="flex gap-2">
+                <button class="btn btn-primary flex-1" id="categorySubmitBtn">
+                  <i data-lucide="save"></i>
+                  Simpan Kategori
+                </button>
+                <button class="btn btn-light" onclick="resetCategoryForm()" type="button">
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="card lg:col-span-2">
+            <div class="p-5 flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <h3 class="font-bold">Daftar Kategori</h3>
+                <span class="master-meta" id="categoryCount">0 kategori</span>
+              </div>
+              <div class="flex gap-2">
+                <input class="input master-search" id="categorySearch" oninput="renderCategories()"
+                  placeholder="Cari kategori..." />
+                <button class="btn btn-light" onclick="exportMasterCSV('kategori')" type="button">
+                  <i data-lucide="download"></i> CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      Nama Kategori
+                    </th>
+                    <th>
+                      Jumlah Invoice
+                    </th>
+                    <th>
+                      Total Pengeluaran
+                    </th>
+                    <th>
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="categoryTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- BAHAN BAKU -->
+      <section class="page" id="bahan">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="card p-5">
+            <h3 class="font-bold mb-1" id="bahanFormTitle">
+              Tambah Bahan Baku
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">
+              Contoh: Sayur, Beras, Ayam, Telur, Buah.
+            </p>
+            <form class="space-y-3" id="bahanForm">
+              <input id="bahanId" type="hidden" />
+              <div>
+                <label class="text-xs font-semibold">
+                  Nama Bahan *
+                </label>
+                <input class="input mt-1" id="bahanName" placeholder="Contoh: Sayur" required="" />
+              </div>
+              <div>
+                <label class="text-xs font-semibold">
+                  Kategori
+                </label>
+                <input class="input mt-1" id="bahanSubcategory" placeholder="Contoh: Sayuran" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-semibold">
+                    Satuan *
+                  </label>
+                  <input class="input mt-1" id="bahanUnit" placeholder="kg" required="" />
+                </div>
+                <div>
+                  <label class="text-xs font-semibold">
+                    Harga Default *
+                  </label>
+                  <input class="input mt-1" id="bahanPrice" min="0" placeholder="0" required="" type="number" />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold">
+                  Supplier Utama
+                </label>
+                <select class="input mt-1" id="bahanSupplier">
+                </select>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-primary flex-1">
+                  Simpan
+                </button>
+                <button class="btn btn-light" onclick="resetBahanForm()" type="button">
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="card lg:col-span-2">
+            <div class="p-5 flex justify-between items-center">
+              <div>
+                <h3 class="font-bold">
+                  Master Bahan Baku
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Harga default digunakan sebagai referensi saat membuat invoice.
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <span class="master-meta" id="bahanCount">0 bahan</span>
+                <input class="input master-search" id="bahanSearch" oninput="renderBahan()"
+                  placeholder="Cari bahan..." />
+                <button class="btn btn-light" onclick="exportMasterCSV('bahan')" type="button"
+                  title="Export bahan baku">
+                  <i data-lucide="download"></i> CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      Nama Bahan
+                    </th>
+                    <th>
+                      Kategori
+                    </th>
+                    <th>
+                      Satuan
+                    </th>
+                    <th>
+                      Harga Default
+                    </th>
+                    <th>
+                      Supplier
+                    </th>
+                    <th>
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="bahanTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- BARANG OPERASIONAL -->
+      <section class="page" id="operasional">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="card p-5">
+            <h3 class="font-bold mb-1" id="opFormTitle">
+              Tambah Barang Operasional
+            </h3>
+            <p class="text-xs text-slate-500 mb-4">
+              Contoh: Gas LPG, ATK, sabun, plastik, galon.
+            </p>
+            <form class="space-y-3" id="operasionalForm">
+              <input id="opId" type="hidden" />
+              <div>
+                <label class="text-xs font-semibold">
+                  Nama Barang *
+                </label>
+                <input class="input mt-1" id="opName" placeholder="Contoh: Gas LPG 12 Kg" required="" />
+              </div>
+              <div>
+                <label class="text-xs font-semibold">
+                  Kategori
+                </label>
+                <input class="input mt-1" id="opSubcategory" placeholder="Contoh: Gas" />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="text-xs font-semibold">
+                    Satuan *
+                  </label>
+                  <input class="input mt-1" id="opUnit" placeholder="tabung" required="" />
+                </div>
+                <div>
+                  <label class="text-xs font-semibold">
+                    Harga Default *
+                  </label>
+                  <input class="input mt-1" id="opPrice" min="0" placeholder="0" required="" type="number" />
+                </div>
+              </div>
+              <div>
+                <label class="text-xs font-semibold">
+                  Supplier Utama
+                </label>
+                <select class="input mt-1" id="opSupplier">
+                </select>
+              </div>
+              <div class="flex gap-2">
+                <button class="btn btn-primary flex-1">
+                  Simpan
+                </button>
+                <button class="btn btn-light" onclick="resetOpForm()" type="button">
+                  Reset
+                </button>
+              </div>
+            </form>
+          </div>
+          <div class="card lg:col-span-2">
+            <div class="p-5 flex justify-between items-center">
+              <div>
+                <h3 class="font-bold">
+                  Master Barang Operasional
+                </h3>
+                <p class="text-xs text-slate-500">
+                  Digunakan untuk transaksi operasional SPPG.
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <span class="master-meta" id="opCount">0 barang</span>
+                <input class="input master-search" id="opSearch" oninput="renderOperasional()"
+                  placeholder="Cari barang..." />
+                <button class="btn btn-light" onclick="exportMasterCSV('operasional')" type="button"
+                  title="Export barang operasional">
+                  <i data-lucide="download"></i> CSV
+                </button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>
+                      Nama Barang
+                    </th>
+                    <th>
+                      Kategori
+                    </th>
+                    <th>
+                      Satuan
+                    </th>
+                    <th>
+                      Harga Default
+                    </th>
+                    <th>
+                      Supplier
+                    </th>
+                    <th>
+                      Aksi
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="operasionalTable">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- USER MANAGEMENT -->
+      <section class="page" id="users">
+        <div class="card p-6">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+            <div><h3 class="font-bold text-lg">Manajemen User</h3><p class="text-sm text-slate-500">Kelola akun Admin, Staff, dan Auditor.</p></div>
+            <button class="btn btn-primary" onclick="openUserForm()"><i data-lucide="user-plus"></i>Tambah User</button>
+          </div>
+          <form id="userForm" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 p-4 mb-5 rounded-xl bg-slate-50 border border-slate-200">
+            <div><label class="text-xs font-semibold">Username</label><input class="input mt-1" id="userUsername" required></div>
+            <div><label class="text-xs font-semibold">Nama Lengkap</label><input class="input mt-1" id="userFullName" required></div>
+            <div><label class="text-xs font-semibold">Password</label><input class="input mt-1" id="userPassword" type="password" minlength="8" required></div>
+            <div><label class="text-xs font-semibold">Role</label><select class="input mt-1" id="userRole"><option value="staff">Staff</option><option value="auditor">Auditor</option><option value="admin">Admin</option></select></div>
+            <div class="md:col-span-2 flex gap-2"><button class="btn btn-primary">Simpan User</button><button type="button" class="btn btn-light" onclick="closeUserForm()">Batal</button></div>
+          </form>
+          <div class="table-wrap"><table><thead><tr><th>Username</th><th>Nama</th><th>Role</th><th>Status</th><th>Login Terakhir</th><th>Aksi</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- AUDIT TRAIL -->
+      <section class="page" id="audit">
+        <div class="card p-6">
+          <div class="flex items-center justify-between mb-5"><div><h3 class="font-bold text-lg">Audit Trail</h3><p class="text-sm text-slate-500">Riwayat login dan perubahan penting pada aplikasi.</p></div><button class="btn btn-light" onclick="loadAuditLogs()"><i data-lucide="refresh-cw"></i>Refresh</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Waktu</th><th>User</th><th>Action</th><th>Module</th><th>Deskripsi</th><th>IP</th></tr></thead><tbody id="auditTable"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- SETTINGS -->
+      <section class="page" id="pengaturan">
+        <div class="card p-6 max-w-4xl">
+          <h3 class="font-bold text-lg">
+            Informasi SPPG
+          </h3>
+          <p class="text-sm text-slate-500 mb-5">
+            Informasi ini akan tampil pada laporan.
+          </p>
+          <form class="grid grid-cols-1 md:grid-cols-2 gap-4" id="settingsForm">
+            <div>
+              <label class="text-xs font-semibold">
+                Nama SPPG
+              </label>
+              <input class="input mt-1" id="setName" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Lokasi
+              </label>
+              <input class="input mt-1" id="setLocation" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Nama Penyusun
+              </label>
+              <input class="input mt-1" id="setPrepared" />
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Penanggung Jawab
+              </label>
+              <input class="input mt-1" id="setApproved" />
+            </div>
+            <div class="md:col-span-2 flex flex-wrap gap-2 mt-2">
+              <button class="btn btn-primary">
+                Simpan Pengaturan
+              </button>
+              <button class="btn btn-light" onclick="backupData()" type="button">
+                <i data-lucide="download">
+                </i>
+                Backup JSON
+              </button>
+              <label class="btn btn-light cursor-pointer">
+                <i data-lucide="upload">
+                </i>
+                Restore JSON
+                <input accept=".json" class="hidden" id="restoreInput" onchange="restoreData(event)" type="file" />
+              </label>
+            </div>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+  <!-- MODAL INVOICE -->
+  <div class="modal-bg" id="invoiceModal">
+    <div class="modal">
+      <div class="p-5 border-b flex justify-between items-center">
+        <div>
+          <h2 class="font-bold text-lg" id="modalTitle">
+            Tambah Invoice
+          </h2>
+          <p class="text-xs text-slate-500">
+            Masukkan transaksi pembelian/pengeluaran SPPG.
+          </p>
+        </div>
+        <button class="btn btn-light p-2" onclick="closeInvoiceModal()">
+          <i data-lucide="x">
+          </i>
+        </button>
+      </div>
+      <form class="p-5" id="invoiceForm">
+        <input id="editInvoiceId" type="hidden" />
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label class="text-xs font-semibold">
+              No. Invoice *
+            </label>
+            <input class="input mt-1" id="invNumber" required="" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">
+              Tanggal *
+            </label>
+            <input class="input mt-1" id="invDate" required="" type="date" />
+          </div>
+          <div>
+            <label class="text-xs font-semibold">
+              Supplier *
+            </label>
+            <select class="input mt-1" id="invSupplier" required="">
+            </select>
+          </div>
+          <div>
+            <label class="text-xs font-semibold">
+              Kategori *
+            </label>
+            <select class="input mt-1" id="invCategory" required="">
+            </select>
+          </div>
+        </div>
+        <div class="mt-6 flex items-center justify-between">
+          <div>
+            <h3 class="font-bold">
+              Detail Barang
+            </h3>
+            <p class="text-xs text-slate-500">
+              Tambahkan satu atau beberapa item.
+            </p>
+          </div>
+          <button class="btn btn-light" onclick="addItemRow()" type="button">
+            <i data-lucide="plus">
+            </i>
+            Tambah Item
+          </button>
+        </div>
+        <div class="table-wrap mt-3">
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  Nama Barang
+                </th>
+                <th style="width:100px">
+                  Qty
+                </th>
+                <th style="width:120px">
+                  Satuan
+                </th>
+                <th style="width:170px">
+                  Harga Satuan
+                </th>
+                <th style="width:170px">
+                  Subtotal
+                </th>
+                <th>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="itemRows">
+            </tbody>
+          </table>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-5">
+          <div>
+            <label class="text-xs font-semibold">
+              Keterangan
+            </label>
+            <textarea class="input mt-1" id="invNotes" placeholder="Catatan invoice..." rows="4"></textarea>
+          </div>
+          <div class="bg-slate-50 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between">
+              <span class="text-sm">
+                Subtotal
+              </span>
+              <strong id="formSubtotal">
+                Rp0
+              </strong>
+            </div>
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm">
+                Pajak / Biaya Lain
+              </span>
+              <input class="input max-w-[180px]" id="invTax" min="0" oninput="calcInvoiceTotal()" type="number"
+                value="0" />
+            </div>
+            <div class="flex justify-between border-t pt-3 text-lg">
+              <strong>
+                Total
+              </strong>
+              <strong class="text-blue-600" id="formTotal">
+                Rp0
+              </strong>
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Status Pembayaran
+              </label>
+              <select class="input mt-1" id="invStatus">
+                <option>
+                  Lunas
+                </option>
+                <option>
+                  Belum Lunas
+                </option>
+                <option>
+                  DP
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="text-xs font-semibold">
+                Metode Pembayaran
+              </label>
+              <select class="input mt-1" id="invPayment">
+                <option>
+                  Transfer Bank
+                </option>
+                <option>
+                  Tunai
+                </option>
+                <option>
+                  QRIS
+                </option>
+                <option>
+                  Lainnya
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 flex justify-end gap-2 border-t pt-5">
+          <button class="btn btn-light" onclick="closeInvoiceModal()" type="button">
+            Batal
+          </button>
+          <button class="btn btn-primary">
+            <i data-lucide="save">
+            </i>
+            Simpan Invoice
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <!-- DETAIL MODAL -->
+  <div class="modal-bg" id="detailModal">
+    <div class="modal max-w-3xl">
+      <div class="p-5 border-b flex justify-between">
+        <h2 class="font-bold">
+          Detail Invoice
+        </h2>
+        <button class="btn btn-light p-2" onclick="document.getElementById('detailModal').classList.remove('show')">
+          <i data-lucide="x">
+          </i>
+        </button>
+      </div>
+      <div class="p-6" id="detailContent">
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast">
+  </div>
+  <div class="action-modal" id="actionModal" role="dialog" aria-modal="true">
+    <div class="action-dialog">
+      <div class="action-icon info" id="actionIcon">
+        <i data-lucide="info"></i>
+      </div>
+      <h3 id="actionTitle">Informasi</h3>
+      <p id="actionMessage">Pesan</p>
+      <div class="action-actions" id="actionButtons">
+        <button class="btn btn-primary" onclick="closeActionModal()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const KEY = 'sppg_invoice_app_v1';
+    const defaultData = {
+      settings: {name: 'SPPG Magelang Muntilan Gunungpring 01', location: '', prepared: '', approved: ''},
+      suppliers: [{id: 's1', name: 'Koperasi Gunungpring Terpadu Sejahtera', phone: '', address: ''}],
+      categories: ['Bahan Makanan', 'Bahan Pendukung', 'Operasional', 'Transportasi', 'Peralatan', 'Gas', 'Listrik', 'Air', 'ATK', 'Lainnya'],
+      bahan: [], operasional: [], invoices: []
+    };
+    const API_BASE = '/api';
+    let db = structuredClone(defaultData), expenseChart, categoryChart;
+    db.bahan = db.bahan || []; db.operasional = db.operasional || []; db.suppliers = db.suppliers || []; db.categories = db.categories || defaultData.categories;
+
+    async function api(path, options = {}) {
+      const response = await fetch(`${API_BASE}${path}`, {
+        headers: {'Content-Type': 'application/json', ...(options.headers || {})},
+        ...options
+      });
+      const text = await response.text();
+      let payload = {};
+      try { payload = text ? JSON.parse(text) : {}; } catch (_) { payload = {raw: text}; }
+      if (!response.ok) throw new Error(payload.error || payload.message || `HTTP ${response.status}`);
+      return payload;
+    }
+
+    async function loadData() {
+      try {
+        const data = await api('/data');
+        db = { ...structuredClone(defaultData), ...data };
+        db.bahan = db.bahan || []; db.operasional = db.operasional || []; db.suppliers = db.suppliers || []; db.categories = db.categories || []; db.invoices = db.invoices || [];
+        return db;
+      } catch (e) {
+        showError?.('Database tidak dapat dibaca', e.message);
+        throw e;
+      }
+    }
+
+    async function reloadFromServer() {
+      await loadData();
+      refresh();
+    }
+
+    async function saveSupplierAPI(obj, isEdit) {
+      return api(isEdit ? `/suppliers/${encodeURIComponent(obj.id)}` : '/suppliers', {method: isEdit ? 'PUT' : 'POST', body: JSON.stringify(obj)});
+    }
+    async function deleteSupplierAPI(idv) { return api(`/suppliers/${encodeURIComponent(idv)}`, {method:'DELETE'}); }
+    async function saveCategoryAPI(name, oldName = '') {
+      if (oldName) return api(`/categories/${encodeURIComponent(oldName)}`, {method:'PUT', body:JSON.stringify({name})});
+      return api('/categories', {method:'POST', body:JSON.stringify({name})});
+    }
+    async function deleteCategoryAPI(name) { return api(`/categories/${encodeURIComponent(name)}`, {method:'DELETE'}); }
+    async function saveMasterAPI(type, obj, isEdit) {
+      const base = type === 'bahan' ? '/raw-materials' : '/operational-items';
+      return api(isEdit ? `${base}/${encodeURIComponent(obj.id)}` : base, {method:isEdit ? 'PUT' : 'POST', body:JSON.stringify(obj)});
+    }
+    async function deleteMasterAPI(type, idv) {
+      const base = type === 'bahan' ? '/raw-materials' : '/operational-items';
+      return api(`${base}/${encodeURIComponent(idv)}`, {method:'DELETE'});
+    }
+    async function saveInvoiceAPI(obj, isEdit) {
+      const payload = {...obj, payment_method: obj.payment};
+      return api(isEdit ? `/invoices/${encodeURIComponent(obj.id)}` : '/invoices', {method:isEdit ? 'PUT' : 'POST', body:JSON.stringify(payload)});
+    }
+    async function deleteInvoiceAPI(idv) { return api(`/invoices/${encodeURIComponent(idv)}`, {method:'DELETE'}); }
+    async function saveSettingsAPI(settings) { return api('/settings', {method:'PUT', body:JSON.stringify(settings)}); }
+    function id() {return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)}
+    function rupiah(n) {return new Intl.NumberFormat('id-ID', {style: 'currency', currency: 'IDR', maximumFractionDigits: 0}).format(Number(n) || 0)}
+    function fmtDate(v) {if (!v) return '-'; return new Date(v + 'T00:00:00').toLocaleDateString('id-ID', {day: '2-digit', month: 'short', year: 'numeric'})}
+    function iso(d) {return d.toISOString().slice(0, 10)}
+    function today() {return iso(new Date())}
+    function toast(msg) {const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2200)}
+    function escapeHtml(s = '') {return String(s).replace(/[&<>"']/g, m => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'}[m]))}
+    function statusBadge(s) {let c = s === 'Lunas' ? 'bg-emerald-50 text-emerald-600' : s === 'DP' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'; return `<span class="badge ${c}">${escapeHtml(s)}</span>`}
+
+    document.getElementById('todayText').textContent = new Date().toLocaleDateString('id-ID', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
+    document.querySelectorAll('.nav-item').forEach(x => x.onclick = () => showPage(x.dataset.page));
+    document.getElementById('menuBtn').onclick = () => document.getElementById('sidebar').classList.toggle('open');
+
+    function showPage(page) {
+      const target = document.getElementById(page);
+      if (!target) return;
+      document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); target.classList.add('active');
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.toggle('active', x.dataset.page === page));
+      const titles = {dashboard:'Dashboard', invoice:'Invoice Harian', laporan:'Laporan Keuangan', supplier:'Master Supplier', kategori:'Master Kategori', bahan:'Master Bahan Baku', operasional:'Barang Operasional', pengaturan:'Pengaturan SPPG', users:'Manajemen User', audit:'Audit Trail'};
+      document.getElementById('pageTitle').textContent = titles[page] || 'SPPG Finance'; document.getElementById('sidebar').classList.remove('open');
+      if (page === 'laporan') {applyPreset(); generateReport();}
+      if (page === 'pengaturan') fillSettings();
+      if (page === 'users') loadUsers();
+      if (page === 'audit') loadAuditLogs();
+    }
+
+    function invoiceTotal(inv) {return inv.items.reduce((a, b) => a + (+b.qty * +b.price), 0) + (+inv.tax || 0)}
+    function startOfWeek(d) {let x = new Date(d); let day = x.getDay() || 7; x.setDate(x.getDate() - day + 1); x.setHours(0, 0, 0, 0); return x}
+    function updateDashboard() {
+      const now = new Date(), td = today(), ws = iso(startOfWeek(now)), ms = iso(new Date(now.getFullYear(), now.getMonth(), 1));
+      const totalRange = (a, b) => db.invoices.filter(x => x.date >= a && x.date <= b).reduce((s, x) => s + invoiceTotal(x), 0);
+      const todays = db.invoices.filter(x => x.date === td);
+      document.getElementById('statToday').textContent = rupiah(todays.reduce((s, x) => s + invoiceTotal(x), 0));
+      document.getElementById('statTodayCount').textContent = `${todays.length} invoice`;
+      document.getElementById('statWeek').textContent = rupiah(totalRange(ws, td)); document.getElementById('statMonth').textContent = rupiah(totalRange(ms, td)); document.getElementById('statInvoices').textContent = db.invoices.length;
+      document.getElementById('recentTable').innerHTML = db.invoices.slice().sort((a, b) => b.date.localeCompare(a.date)).slice(0, 10).map(x => `<tr><td class="font-semibold text-blue-600">${escapeHtml(x.number)}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td class="font-semibold">${rupiah(invoiceTotal(x))}</td><td>${statusBadge(x.status)}</td></tr>`).join('') || emptyRow(6);
+      renderCharts();
+    }
+    function renderCharts() {
+      const labels = [], vals = []; for (let i = 6; i >= 0; i--) {let d = new Date(); d.setDate(d.getDate() - i); let k = iso(d); labels.push(d.toLocaleDateString('id-ID', {day: '2-digit', month: 'short'})); vals.push(db.invoices.filter(x => x.date === k).reduce((s, x) => s + invoiceTotal(x), 0))}
+      if (expenseChart) expenseChart.destroy(); expenseChart = new Chart(document.getElementById('expenseChart'), {type: 'line', data: {labels, datasets: [{label: 'Pengeluaran', data: vals, tension: .35, fill: true}]}, options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: false}}, scales: {y: {beginAtZero: true, ticks: {callback: v => 'Rp' + new Intl.NumberFormat('id-ID', {notation: 'compact'}).format(v)}}}}});
+      let now = new Date(), m = iso(new Date(now.getFullYear(), now.getMonth(), 1)); let list = db.invoices.filter(x => x.date >= m && x.date <= today()); let map = {}; list.forEach(x => map[x.category] = (map[x.category] || 0) + invoiceTotal(x));
+      if (categoryChart) categoryChart.destroy(); categoryChart = new Chart(document.getElementById('categoryChart'), {type: 'doughnut', data: {labels: Object.keys(map), datasets: [{data: Object.values(map)}]}, options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: 'bottom', labels: {boxWidth: 10}}}}});
+    }
+    function supplierName(idv) {return db.suppliers.find(s => s.id === idv)?.name || '-'}
+    function emptyRow(n) {return `<tr><td colspan="${n}" class="text-center text-slate-400 py-8">Belum ada data.</td></tr>`}
+
+    function populateSelects() {
+      if (document.getElementById('bahanSupplier')) document.getElementById('bahanSupplier').innerHTML = supplierOptions();
+      if (document.getElementById('opSupplier')) document.getElementById('opSupplier').innerHTML = supplierOptions();
+      document.getElementById('invSupplier').innerHTML = '<option value="">Pilih supplier</option>' + db.suppliers.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+      document.getElementById('invCategory').innerHTML = '<option value="">Pilih kategori</option>' + db.categories.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+      document.getElementById('reportCategory').innerHTML = '<option value="">Semua Kategori</option>' + db.categories.map(c => `<option>${escapeHtml(c)}</option>`).join('');
+    }
+    function nextInvoiceNo() {let d = new Date(), ymd = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`; return `INV-${ymd}-${String(db.invoices.length + 1).padStart(3, '0')}`}
+    function openInvoiceModal(invId = null) {
+      populateSelects(); document.getElementById('invoiceForm').reset(); document.getElementById('editInvoiceId').value = ''; document.getElementById('itemRows').innerHTML = ''; document.getElementById('invDate').value = today(); document.getElementById('invNumber').value = nextInvoiceNo(); document.getElementById('invTax').value = 0; document.getElementById('modalTitle').textContent = 'Tambah Invoice';
+      if (invId) {let x = db.invoices.find(i => i.id === invId); if (x) {document.getElementById('modalTitle').textContent = 'Edit Invoice'; document.getElementById('editInvoiceId').value = x.id; document.getElementById('invNumber').value = x.number; document.getElementById('invDate').value = x.date; document.getElementById('invSupplier').value = x.supplierId; document.getElementById('invCategory').value = x.category; document.getElementById('invNotes').value = x.notes || ''; document.getElementById('invTax').value = x.tax || 0; document.getElementById('invStatus').value = x.status; document.getElementById('invPayment').value = x.payment; x.items.forEach(addItemRow)} }
+      if (!document.getElementById('itemRows').children.length) addItemRow(); calcInvoiceTotal(); document.getElementById('invoiceModal').classList.add('show'); lucide.createIcons();
+    }
+    function closeInvoiceModal() {document.getElementById('invoiceModal').classList.remove('show')}
+    function addItemRow(item = {name: '', qty: 1, unit: 'kg', price: 0, masterType: '', masterId: ''}) {
+      let tr = document.createElement('tr');
+      tr.innerHTML = `<td>
+    <select class="input item-master" onchange="selectMasterItem(this)">
+      <option value="">Input manual / pilih master</option>
+      <optgroup label="Bahan Baku">${db.bahan.map(x => `<option value="b:${x.id}" ${item.masterType === 'bahan' && item.masterId === x.id ? 'selected' : ''}>${escapeHtml(x.name)}</option>`).join('')}</optgroup>
+      <optgroup label="Barang Operasional">${db.operasional.map(x => `<option value="o:${x.id}" ${item.masterType === 'operasional' && item.masterId === x.id ? 'selected' : ''}>${escapeHtml(x.name)}</option>`).join('')}</optgroup>
+    </select>
+    <input class="input item-name mt-1" value="${escapeHtml(item.name)}" placeholder="Nama barang" required>
+  </td><td><input type="number" min="0.01" step="0.01" class="input item-qty" value="${item.qty}" oninput="calcInvoiceTotal()" required></td><td><input class="input item-unit" value="${escapeHtml(item.unit)}" placeholder="kg"></td><td><input type="number" min="0" class="input item-price" value="${item.price}" oninput="calcInvoiceTotal()" required></td><td class="font-semibold item-subtotal">${rupiah(item.qty * item.price)}</td><td><button type="button" class="btn btn-danger p-2" onclick="this.closest('tr').remove();calcInvoiceTotal()"><i data-lucide="trash-2"></i></button></td>`;
+      document.getElementById('itemRows').appendChild(tr); lucide.createIcons();
+    }
+    function selectMasterItem(sel) {
+      const val = sel.value, tr = sel.closest('tr'); if (!val) return;
+      const [type, mid] = val.split(':');
+      const obj = type === 'b' ? db.bahan.find(x => x.id === mid) : db.operasional.find(x => x.id === mid);
+      if (!obj) return;
+      tr.querySelector('.item-name').value = obj.name;
+      tr.querySelector('.item-unit').value = obj.unit;
+      tr.querySelector('.item-price').value = obj.price;
+      calcInvoiceTotal();
+    }
+    function getItems() {return [...document.querySelectorAll('#itemRows tr')].map(r => {let m = r.querySelector('.item-master')?.value || '', parts = m.split(':'); return {name: r.querySelector('.item-name').value.trim(), qty: +r.querySelector('.item-qty').value || 0, unit: r.querySelector('.item-unit').value.trim(), price: +r.querySelector('.item-price').value || 0, masterType: parts[0] === 'b' ? 'bahan' : parts[0] === 'o' ? 'operasional' : '', masterId: parts[1] || ''}})}
+    function calcInvoiceTotal() {let subtotal = 0; document.querySelectorAll('#itemRows tr').forEach(r => {let v = (+r.querySelector('.item-qty').value || 0) * (+r.querySelector('.item-price').value || 0); r.querySelector('.item-subtotal').textContent = rupiah(v); subtotal += v}); document.getElementById('formSubtotal').textContent = rupiah(subtotal); document.getElementById('formTotal').textContent = rupiah(subtotal + (+document.getElementById('invTax').value || 0))}
+    document.getElementById('invoiceForm').onsubmit = async e => {
+      e.preventDefault(); let items = getItems(); if (!items.length || items.some(x => !x.name || x.qty <= 0)) {toast('Lengkapi detail barang.'); return }
+      let obj = {id: document.getElementById('editInvoiceId').value || id(), number: document.getElementById('invNumber').value.trim(), date: document.getElementById('invDate').value, supplierId: document.getElementById('invSupplier').value, category: document.getElementById('invCategory').value, items, tax: +document.getElementById('invTax').value || 0, status: document.getElementById('invStatus').value, payment: document.getElementById('invPayment').value, notes: document.getElementById('invNotes').value.trim()};
+      const isEdit = db.invoices.some(x => x.id === obj.id);
+      try {
+        await saveInvoiceAPI(obj, isEdit);
+        closeInvoiceModal(); await reloadFromServer();
+        showSuccess(isEdit ? 'Invoice diperbarui' : 'Invoice tersimpan', `Invoice ${obj.number} berhasil ${isEdit ? 'diperbarui' : 'disimpan'}.`);
+      } catch (err) { showError('Gagal menyimpan invoice', err.message); }
+    };
+    function renderInvoices() {
+      let q = document.getElementById('invoiceSearch').value.toLowerCase(), f = document.getElementById('invoiceFrom').value, t = document.getElementById('invoiceTo').value;
+      let arr = db.invoices.filter(x => (!q || (x.number + ' ' + supplierName(x.supplierId)).toLowerCase().includes(q)) && (!f || x.date >= f) && (!t || x.date <= t)).sort((a, b) => b.date.localeCompare(a.date));
+      document.getElementById('invoiceTable').innerHTML = arr.map(x => `<tr><td class="font-semibold text-blue-600">${escapeHtml(x.number)}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td>${x.items.length}</td><td class="font-semibold">${rupiah(invoiceTotal(x))}</td><td>${statusBadge(x.status)}</td><td><div class="flex gap-1"><button class="btn btn-light p-2" onclick="viewInvoice('${x.id}')"><i data-lucide="eye"></i></button><button class="btn btn-light p-2" onclick="openInvoiceModal('${x.id}')"><i data-lucide="pencil"></i></button><button class="btn btn-danger p-2" onclick="deleteInvoice('${x.id}')"><i data-lucide="trash-2"></i></button></div></td></tr>`).join('') || emptyRow(8); lucide.createIcons();
+    }
+    function resetInvoiceFilter() {document.getElementById('invoiceSearch').value = ''; document.getElementById('invoiceFrom').value = ''; document.getElementById('invoiceTo').value = ''; renderInvoices()}
+    async function deleteInvoice(v) {
+      const x = db.invoices.find(i => i.id === v);
+      if (!x) return;
+      const ok = await confirmAction('Hapus Invoice?', `Invoice ${x.number} akan dihapus dan tidak dapat dipulihkan dari aplikasi.`, true);
+      if (!ok) return;
+      try { await deleteInvoiceAPI(v); await reloadFromServer(); showSuccess('Invoice dihapus', `Invoice ${x.number} berhasil dihapus.`); }
+      catch (err) { showError('Gagal menghapus invoice', err.message); }
+    }
+    function viewInvoice(v) {let x = db.invoices.find(i => i.id === v); if (!x) return; document.getElementById('detailContent').innerHTML = `<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5"><div><small class="text-slate-400">No Invoice</small><p class="font-semibold">${escapeHtml(x.number)}</p></div><div><small class="text-slate-400">Tanggal</small><p>${fmtDate(x.date)}</p></div><div><small class="text-slate-400">Supplier</small><p>${escapeHtml(supplierName(x.supplierId))}</p></div><div><small class="text-slate-400">Kategori</small><p>${escapeHtml(x.category)}</p></div></div><div class="table-wrap"><table><thead><tr><th>Barang</th><th>Qty</th><th>Satuan</th><th>Harga</th><th>Subtotal</th></tr></thead><tbody>${x.items.map(i => `<tr><td>${escapeHtml(i.name)}</td><td>${i.qty}</td><td>${escapeHtml(i.unit)}</td><td>${rupiah(i.price)}</td><td>${rupiah(i.qty * i.price)}</td></tr>`).join('')}</tbody></table></div><div class="mt-5 text-right"><p>Pajak/Biaya: ${rupiah(x.tax)}</p><h3 class="text-xl font-bold mt-2">Total: ${rupiah(invoiceTotal(x))}</h3><p class="mt-2">${statusBadge(x.status)} • ${escapeHtml(x.payment)}</p></div>${x.notes ? `<div class="mt-5 bg-slate-50 p-4 rounded-xl"><small class="text-slate-400">Keterangan</small><p>${escapeHtml(x.notes)}</p></div>` : ''}`; document.getElementById('detailModal').classList.add('show'); lucide.createIcons()}
+
+
+    let actionResolver = null;
+
+    function showActionModal({type = 'success', title = 'Berhasil', message = '', confirm = false, confirmText = 'Ya, lanjutkan', cancelText = 'Batal'} = {}) {
+      const modal = document.getElementById('actionModal');
+      const icon = document.getElementById('actionIcon');
+      const titleEl = document.getElementById('actionTitle');
+      const messageEl = document.getElementById('actionMessage');
+      const buttons = document.getElementById('actionButtons');
+      const icons = {success: 'check-circle-2', danger: 'trash-2', warning: 'triangle-alert', info: 'info'};
+      icon.className = `action-icon ${type}`;
+      icon.innerHTML = `<i data-lucide="${icons[type] || icons.info}"></i>`;
+      titleEl.textContent = title;
+      messageEl.textContent = message;
+      buttons.innerHTML = confirm
+        ? `<button class="btn btn-outline" onclick="resolveAction(false)">${escapeHtml(cancelText)}</button>
+           <button class="btn ${type === 'danger' ? 'btn-danger' : 'btn-primary'}" onclick="resolveAction(true)">${escapeHtml(confirmText)}</button>`
+        : `<button class="btn btn-primary" onclick="closeActionModal()">Tutup</button>`;
+      modal.classList.add('show');
+      lucide.createIcons();
+      if (!confirm) return Promise.resolve(true);
+      return new Promise(resolve => {actionResolver = resolve;});
+    }
+
+    function resolveAction(value) {
+      const resolver = actionResolver;
+      actionResolver = null;
+      closeActionModal();
+      if (resolver) resolver(value);
+    }
+
+    function closeActionModal() {
+      document.getElementById('actionModal').classList.remove('show');
+      actionResolver = null;
+    }
+
+    function showSuccess(title, message) {
+      showActionModal({type: 'success', title, message});
+    }
+
+    function showError(title, message) {
+      showActionModal({type: 'danger', title, message});
+    }
+
+    async function confirmAction(title, message, danger = true) {
+      return await showActionModal({
+        type: danger ? 'danger' : 'warning',
+        title,
+        message,
+        confirm: true,
+        confirmText: danger ? 'Ya, Hapus' : 'Ya, Lanjutkan'
+      });
+    }
+
+    function csvCell(value) {
+      return `"${String(value ?? '').replace(/"/g, '""')}"`;
+    }
+
+    function exportMasterCSV(type) {
+      let rows = [], filename = `master-${type}-${today()}.csv`;
+      if (type === 'supplier') {
+        rows = [['Nama Supplier', 'Telepon', 'Alamat'], ...db.suppliers.map(x => [x.name, x.phone, x.address])];
+      } else if (type === 'kategori') {
+        rows = [['Kategori', 'Jumlah Invoice', 'Total Pengeluaran'], ...db.categories.map(c => {
+          const inv = db.invoices.filter(x => x.category === c);
+          return [c, inv.length, inv.reduce((a, x) => a + invoiceTotal(x), 0)];
+        })];
+      } else if (type === 'bahan') {
+        rows = [['Nama Bahan', 'Kategori', 'Satuan', 'Harga Default', 'Supplier'], ...db.bahan.map(x => [x.name, x.subcategory, x.unit, x.price, supplierName(x.supplierId)])];
+      } else if (type === 'operasional') {
+        rows = [['Nama Barang', 'Kategori', 'Satuan', 'Harga Default', 'Supplier'], ...db.operasional.map(x => [x.name, x.subcategory, x.unit, x.price, supplierName(x.supplierId)])];
+      }
+      const csv = '\ufeff' + rows.map(r => r.map(csvCell).join(',')).join('\r\n');
+      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      showSuccess('Export berhasil', `Data master ${type} berhasil diekspor ke CSV.`);
+    }
+
+    document.getElementById('actionModal').addEventListener('click', e => {
+      if (e.target.id === 'actionModal') closeActionModal();
+    });
+
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeActionModal();
+    });
+
+    function resetSupplierForm() {
+      document.getElementById('supplierForm').reset();
+      document.getElementById('supplierId').value = '';
+      document.getElementById('supplierFormTitle').textContent = 'Tambah Supplier';
+      document.getElementById('supplierFormHint').textContent = 'Tambahkan supplier baru atau edit data supplier yang sudah ada.';
+      document.getElementById('supplierSubmitBtn').innerHTML = '<i data-lucide="save"></i> Simpan Supplier';
+      lucide.createIcons();
+    }
+    function editSupplier(v) {
+      const x = db.suppliers.find(i => i.id === v);
+      if (!x) return;
+      document.getElementById('supplierId').value = x.id;
+      document.getElementById('supplierName').value = x.name || '';
+      document.getElementById('supplierPhone').value = x.phone || '';
+      document.getElementById('supplierAddress').value = x.address || '';
+      document.getElementById('supplierFormTitle').textContent = 'Edit Supplier';
+      document.getElementById('supplierFormHint').textContent = 'Ubah data supplier lalu tekan Simpan Perubahan.';
+      document.getElementById('supplierSubmitBtn').innerHTML = '<i data-lucide="save"></i> Simpan Perubahan';
+      showPage('supplier');
+      lucide.createIcons();
+    }
+    document.getElementById('supplierForm').onsubmit = async e => {
+      e.preventDefault();
+      const supplierId = document.getElementById('supplierId').value;
+      const obj = {id: supplierId || id(), name: document.getElementById('supplierName').value.trim(), phone: document.getElementById('supplierPhone').value.trim(), address: document.getElementById('supplierAddress').value.trim()};
+      if (!obj.name) {toast('Nama supplier wajib diisi.'); return }
+      const duplicate = db.suppliers.some(x => x.name.toLowerCase() === obj.name.toLowerCase() && x.id !== obj.id);
+      if (duplicate) {toast('Nama supplier sudah ada.'); return }
+      const isEdit = db.suppliers.some(x => x.id === obj.id);
+      try { await saveSupplierAPI(obj, isEdit); resetSupplierForm(); await reloadFromServer(); showSuccess(isEdit ? 'Supplier diperbarui' : 'Supplier ditambahkan', isEdit ? `Data "${obj.name}" berhasil diperbarui.` : `Supplier "${obj.name}" berhasil ditambahkan.`); }
+      catch (err) { showError('Gagal menyimpan supplier', err.message); }
+    };
+    function renderSuppliers() {
+      const q = (document.getElementById('supplierSearch')?.value || '').toLowerCase().trim();
+      const arr = db.suppliers.filter(s => (s.name + ' ' + (s.phone || '') + ' ' + (s.address || '')).toLowerCase().includes(q));
+      const count = document.getElementById('supplierCount');
+      if (count) count.textContent = `${arr.length} supplier`;
+      document.getElementById('supplierTable').innerHTML = arr.map(s => `<tr>
+    <td class="font-semibold">${escapeHtml(s.name)}</td>
+    <td>${escapeHtml(s.phone || '-')}</td>
+    <td>${escapeHtml(s.address || '-')}</td>
+    <td><div class="flex gap-1">
+      <button class="btn btn-light p-2" title="Edit supplier" onclick="editSupplier('${s.id}')"><i data-lucide="pencil"></i></button>
+      <button class="btn btn-danger p-2" title="Hapus supplier" onclick="deleteSupplier('${s.id}')"><i data-lucide="trash-2"></i></button>
+    </div></td>
+  </tr>`).join('') || emptyRow(4);
+      lucide.createIcons();
+    }
+    async function deleteSupplier(v) {
+      const x = db.suppliers.find(i => i.id === v);
+      if (!x) return;
+      if (db.invoices.some(i => i.supplierId === v)) {showError('Tidak dapat dihapus', 'Supplier sudah digunakan pada invoice.'); return;}
+      if (db.bahan.some(i => i.supplierId === v) || db.operasional.some(i => i.supplierId === v)) {showError('Tidak dapat dihapus', 'Supplier masih digunakan pada master barang.'); return;}
+      const ok = await confirmAction('Hapus Supplier?', `Supplier "${x.name}" akan dihapus dari master data.`, true);
+      if (!ok) return;
+      try { await deleteSupplierAPI(v); await reloadFromServer(); showSuccess('Supplier dihapus', `Supplier "${x.name}" berhasil dihapus.`); }
+      catch (err) { showError('Gagal menghapus supplier', err.message); }
+    }
+    function resetCategoryForm() {
+      document.getElementById('categoryForm').reset();
+      document.getElementById('categoryId').value = '';
+      document.getElementById('categoryFormTitle').textContent = 'Tambah Kategori';
+      document.getElementById('categoryFormHint').textContent = 'Tambahkan kategori baru atau edit kategori yang sudah ada.';
+      document.getElementById('categorySubmitBtn').innerHTML = '<i data-lucide="save"></i> Simpan Kategori';
+      lucide.createIcons();
+    }
+    function editCategory(v) {
+      const c = decodeURIComponent(v);
+      if (!db.categories.includes(c)) return;
+      document.getElementById('categoryId').value = c;
+      document.getElementById('categoryName').value = c;
+      document.getElementById('categoryFormTitle').textContent = 'Edit Kategori';
+      document.getElementById('categoryFormHint').textContent = 'Ubah nama kategori lalu tekan Simpan Perubahan.';
+      document.getElementById('categorySubmitBtn').innerHTML = '<i data-lucide="save"></i> Simpan Perubahan';
+      showPage('kategori');
+      lucide.createIcons();
+    }
+    document.getElementById('categoryForm').onsubmit = async e => {
+      e.preventDefault();
+      const oldName = document.getElementById('categoryId').value;
+      const newName = document.getElementById('categoryName').value.trim();
+      if (!newName) {toast('Nama kategori wajib diisi.'); return }
+      const duplicate = db.categories.some(x => x.toLowerCase() === newName.toLowerCase() && x !== oldName);
+      if (duplicate) {toast('Nama kategori sudah ada.'); return }
+      const isEdit = !!oldName;
+      try { await saveCategoryAPI(newName, oldName); resetCategoryForm(); await reloadFromServer(); showSuccess(isEdit ? 'Kategori diperbarui' : 'Kategori ditambahkan', isEdit ? `Kategori "${newName}" berhasil diperbarui.` : `Kategori "${newName}" berhasil ditambahkan.`); }
+      catch (err) { showError('Gagal menyimpan kategori', err.message); }
+    };
+    function renderCategories() {
+      const q = (document.getElementById('categorySearch')?.value || '').toLowerCase().trim();
+      const arr = db.categories.filter(c => c.toLowerCase().includes(q));
+      const count = document.getElementById('categoryCount');
+      if (count) count.textContent = `${arr.length} kategori`;
+      document.getElementById('categoryTable').innerHTML = arr.map(c => {
+        const a = db.invoices.filter(x => x.category === c);
+        return `<tr>
+      <td class="font-semibold">${escapeHtml(c)}</td>
+      <td>${a.length}</td>
+      <td>${rupiah(a.reduce((s, x) => s + invoiceTotal(x), 0))}</td>
+      <td><div class="flex gap-1">
+        <button class="btn btn-light p-2" title="Edit kategori" onclick="editCategory('${encodeURIComponent(c)}')"><i data-lucide="pencil"></i></button>
+        <button class="btn btn-danger p-2" title="Hapus kategori" onclick="deleteCategory('${encodeURIComponent(c)}')"><i data-lucide="trash-2"></i></button>
+      </div></td>
+    </tr>`;
+      }).join('') || emptyRow(4);
+      lucide.createIcons();
+    }
+    async function deleteCategory(v) {
+      const c = decodeURIComponent(v);
+      if (db.invoices.some(x => x.category === c)) {showError('Tidak dapat dihapus', 'Kategori sudah digunakan pada invoice.'); return;}
+      const ok = await confirmAction('Hapus Kategori?', `Kategori "${c}" akan dihapus dari master data.`, true);
+      if (!ok) return;
+      try { await deleteCategoryAPI(c); await reloadFromServer(); showSuccess('Kategori dihapus', `Kategori "${c}" berhasil dihapus.`); }
+      catch (err) { showError('Gagal menghapus kategori', err.message); }
+    }
+
+    function applyPreset() {
+      let p = document.getElementById('reportPeriod').value, n = new Date(), a = new Date(n), b = new Date(n);
+      if (p === 'week') a = startOfWeek(n); if (p === 'month') a = new Date(n.getFullYear(), n.getMonth(), 1); if (p === '3month') a = new Date(n.getFullYear(), n.getMonth() - 2, 1); if (p === '6month') a = new Date(n.getFullYear(), n.getMonth() - 5, 1); if (p === 'year') a = new Date(n.getFullYear(), 0, 1);
+      if (p !== 'custom') {document.getElementById('reportFrom').value = iso(a); document.getElementById('reportTo').value = iso(b)}
+    }
+    function generateReport() {
+      let f = document.getElementById('reportFrom').value, t = document.getElementById('reportTo').value, c = document.getElementById('reportCategory').value;
+      let arr = db.invoices.filter(x => (!f || x.date >= f) && (!t || x.date <= t) && (!c || x.category === c)).sort((a, b) => a.date.localeCompare(b.date)); let total = arr.reduce((s, x) => s + invoiceTotal(x), 0);
+      document.getElementById('reportSPPG').textContent = db.settings.name || 'SPPG'; document.getElementById('reportAddress').textContent = db.settings.location || ''; document.getElementById('reportPeriodText').textContent = `Periode ${fmtDate(f)} s.d. ${fmtDate(t)}`; document.getElementById('reportCount').textContent = arr.length; document.getElementById('reportTotal').textContent = rupiah(total); document.getElementById('reportAvg').textContent = rupiah(arr.length ? total / arr.length : 0); document.getElementById('reportPrepared').textContent = db.settings.prepared || '________________'; document.getElementById('reportApproved').textContent = db.settings.approved || '________________';
+      let map = {}; arr.forEach(x => {if (!map[x.category]) map[x.category] = {count: 0, total: 0}; map[x.category].count++; map[x.category].total += invoiceTotal(x)});
+      document.getElementById('reportCategoryTable').innerHTML = Object.entries(map).map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${v.count}</td><td>${rupiah(v.total)}</td><td>${total ? (v.total / total * 100).toFixed(1) : 0}%</td></tr>`).join('') || emptyRow(4);
+      document.getElementById('reportTable').innerHTML = arr.map((x, i) => `<tr><td>${i + 1}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(x.number)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td>${x.items.length}</td><td>${rupiah(invoiceTotal(x))}</td><td>${escapeHtml(x.status)}</td></tr>`).join('') || emptyRow(8);
+    }
+    function exportPDF() {generateReport(); setTimeout(() => window.print(), 100)}
+
+
+    function supplierOptions(selected = '') {return '<option value="">-</option>' + db.suppliers.map(s => `<option value="${s.id}" ${s.id === selected ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
+    function renderBahan() {
+      let q = (document.getElementById('bahanSearch')?.value || '').toLowerCase();
+      let arr = db.bahan.filter(x => (x.name + ' ' + x.subcategory).toLowerCase().includes(q));
+      const count = document.getElementById('bahanCount');
+      if (count) count.textContent = `${arr.length} bahan`;
+      document.getElementById('bahanTable').innerHTML = arr.map(x => `<tr><td class="font-semibold">${escapeHtml(x.name)}</td><td>${escapeHtml(x.subcategory || '-')}</td><td>${escapeHtml(x.unit)}</td><td>${rupiah(x.price)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td><div class="flex gap-1"><button class="btn btn-light p-2" onclick="editBahan('${x.id}')"><i data-lucide="pencil"></i></button><button class="btn btn-danger p-2" onclick="deleteBahan('${x.id}')"><i data-lucide="trash-2"></i></button></div></td></tr>`).join('') || emptyRow(6); lucide.createIcons();
+    }
+    function resetBahanForm() {
+      document.getElementById('bahanForm').reset();
+      document.getElementById('bahanId').value = '';
+      document.getElementById('bahanSupplier').innerHTML = supplierOptions();
+      document.getElementById('bahanFormTitle').textContent = 'Tambah Bahan Baku';
+    }
+    function editBahan(v) {
+      let x = db.bahan.find(i => i.id === v);
+      if (!x) return;
+      document.getElementById('bahanId').value = x.id;
+      document.getElementById('bahanName').value = x.name;
+      document.getElementById('bahanSubcategory').value = x.subcategory || '';
+      document.getElementById('bahanUnit').value = x.unit;
+      document.getElementById('bahanPrice').value = x.price;
+      document.getElementById('bahanSupplier').innerHTML = supplierOptions(x.supplierId);
+      document.getElementById('bahanFormTitle').textContent = 'Edit Bahan Baku';
+      showPage('bahan');
+    }
+    async function deleteBahan(v) {
+      const x = db.bahan.find(i => i.id === v);
+      if (!x) return;
+      const used = db.invoices.some(inv => inv.items?.some(item => item.masterType === 'bahan' && item.masterId === v));
+      if (used) {showError('Tidak dapat dihapus', 'Bahan baku ini sudah digunakan pada invoice.'); return;}
+      const ok = await confirmAction('Hapus Bahan Baku?', `Master "${x.name}" akan dihapus.`, true);
+      if (!ok) return;
+      try { await deleteMasterAPI('bahan', v); await reloadFromServer(); showSuccess('Bahan baku dihapus', `Master "${x.name}" berhasil dihapus.`); }
+      catch (err) { showError('Gagal menghapus bahan baku', err.message); }
+    }
+    document.getElementById('bahanForm').onsubmit = async e => {
+      e.preventDefault();
+      let obj = {id: document.getElementById('bahanId').value || id(), name: document.getElementById('bahanName').value.trim(), subcategory: document.getElementById('bahanSubcategory').value.trim(), unit: document.getElementById('bahanUnit').value.trim(), price: +document.getElementById('bahanPrice').value || 0, supplierId: document.getElementById('bahanSupplier').value};
+      if (!obj.name || !obj.unit) {showError('Data belum lengkap', 'Nama bahan dan satuan wajib diisi.'); return;}
+      const duplicate = db.bahan.some(x => x.name.toLowerCase() === obj.name.toLowerCase() && x.id !== obj.id);
+      if (duplicate) {showError('Nama sudah digunakan', `Bahan "${obj.name}" sudah ada di master.`); return;}
+      const isEdit = db.bahan.some(x => x.id === obj.id);
+      try { await saveMasterAPI('bahan', obj, isEdit); resetBahanForm(); await reloadFromServer(); showSuccess(isEdit ? 'Bahan diperbarui' : 'Bahan ditambahkan', `Master "${obj.name}" berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}.`); }
+      catch (err) { showError('Gagal menyimpan bahan baku', err.message); }
+    };
+
+    function renderOperasional() {
+      let q = (document.getElementById('opSearch')?.value || '').toLowerCase();
+      let arr = db.operasional.filter(x => (x.name + ' ' + x.subcategory).toLowerCase().includes(q));
+      const count = document.getElementById('opCount');
+      if (count) count.textContent = `${arr.length} barang`;
+      document.getElementById('operasionalTable').innerHTML = arr.map(x => `<tr><td class="font-semibold">${escapeHtml(x.name)}</td><td>${escapeHtml(x.subcategory || '-')}</td><td>${escapeHtml(x.unit)}</td><td>${rupiah(x.price)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td><div class="flex gap-1"><button class="btn btn-light p-2" onclick="editOperasional('${x.id}')"><i data-lucide="pencil"></i></button><button class="btn btn-danger p-2" onclick="deleteOperasional('${x.id}')"><i data-lucide="trash-2"></i></button></div></td></tr>`).join('') || emptyRow(6); lucide.createIcons();
+    }
+    function resetOpForm() {
+      document.getElementById('operasionalForm').reset();
+      document.getElementById('opId').value = '';
+      document.getElementById('opSupplier').innerHTML = supplierOptions();
+      document.getElementById('opFormTitle').textContent = 'Tambah Barang Operasional';
+    }
+    function editOperasional(v) {
+      let x = db.operasional.find(i => i.id === v);
+      if (!x) return;
+      document.getElementById('opId').value = x.id;
+      document.getElementById('opName').value = x.name;
+      document.getElementById('opSubcategory').value = x.subcategory || '';
+      document.getElementById('opUnit').value = x.unit;
+      document.getElementById('opPrice').value = x.price;
+      document.getElementById('opSupplier').innerHTML = supplierOptions(x.supplierId);
+      document.getElementById('opFormTitle').textContent = 'Edit Barang Operasional';
+      showPage('operasional');
+    }
+    async function deleteOperasional(v) {
+      const x = db.operasional.find(i => i.id === v);
+      if (!x) return;
+      const used = db.invoices.some(inv => inv.items?.some(item => item.masterType === 'operasional' && item.masterId === v));
+      if (used) {showError('Tidak dapat dihapus', 'Barang operasional ini sudah digunakan pada invoice.'); return;}
+      const ok = await confirmAction('Hapus Barang?', `Master "${x.name}" akan dihapus.`, true);
+      if (!ok) return;
+      try { await deleteMasterAPI('operasional', v); await reloadFromServer(); showSuccess('Barang dihapus', `Master "${x.name}" berhasil dihapus.`); }
+      catch (err) { showError('Gagal menghapus barang operasional', err.message); }
+    }
+    document.getElementById('operasionalForm').onsubmit = async e => {
+      e.preventDefault();
+      let obj = {id: document.getElementById('opId').value || id(), name: document.getElementById('opName').value.trim(), subcategory: document.getElementById('opSubcategory').value.trim(), unit: document.getElementById('opUnit').value.trim(), price: +document.getElementById('opPrice').value || 0, supplierId: document.getElementById('opSupplier').value};
+      if (!obj.name || !obj.unit) {showError('Data belum lengkap', 'Nama barang dan satuan wajib diisi.'); return;}
+      const duplicate = db.operasional.some(x => x.name.toLowerCase() === obj.name.toLowerCase() && x.id !== obj.id);
+      if (duplicate) {showError('Nama sudah digunakan', `Barang "${obj.name}" sudah ada di master.`); return;}
+      const isEdit = db.operasional.some(x => x.id === obj.id);
+      try { await saveMasterAPI('operasional', obj, isEdit); resetOpForm(); await reloadFromServer(); showSuccess(isEdit ? 'Barang diperbarui' : 'Barang ditambahkan', `Master "${obj.name}" berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}.`); }
+      catch (err) { showError('Gagal menyimpan barang operasional', err.message); }
+    };
+
+    function fillSettings() {document.getElementById('setName').value = db.settings.name || ''; document.getElementById('setLocation').value = db.settings.location || ''; document.getElementById('setPrepared').value = db.settings.prepared || ''; document.getElementById('setApproved').value = db.settings.approved || ''}
+    document.getElementById('settingsForm').onsubmit = async e => {e.preventDefault(); const settings = {name: document.getElementById('setName').value.trim(), location: document.getElementById('setLocation').value.trim(), prepared: document.getElementById('setPrepared').value.trim(), approved: document.getElementById('setApproved').value.trim()}; try {await saveSettingsAPI(settings); await reloadFromServer(); showSuccess('Pengaturan tersimpan', 'Informasi SPPG berhasil diperbarui.')} catch (err) {showError('Gagal menyimpan pengaturan', err.message)}};
+    function backupData() {let blob = new Blob([JSON.stringify(db, null, 2)], {type: 'application/json'}), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup-sppg-${today()}.json`; a.click(); URL.revokeObjectURL(a.href)}
+    function restoreData(e) {
+      let file = e.target.files[0]; if (!file) return;
+      let r = new FileReader();
+      r.onload = async () => {
+        try {
+          let x = JSON.parse(r.result);
+          if (!x.invoices || !x.suppliers || !x.categories) throw new Error('Struktur backup tidak valid.');
+          await api('/data', {method:'PUT', body:JSON.stringify(x)});
+          await reloadFromServer();
+          showSuccess('Backup dipulihkan', 'Data backup berhasil dipulihkan ke PostgreSQL.');
+        } catch (err) { showError('Backup gagal dipulihkan', err.message); }
+      };
+      r.readAsText(file);
+    }
+    function refresh() {populateSelects(); renderInvoices(); renderSuppliers(); renderCategories(); renderBahan(); renderOperasional(); updateDashboard(); generateReport(); lucide.createIcons()}
+    let currentUser = null;
+    async function initAuthUI() {
+      const me = await api('/auth/me');
+      currentUser = me.user;
+      document.getElementById('currentUserName').textContent = currentUser.full_name || currentUser.username;
+      document.getElementById('currentUserRole').textContent = currentUser.role;
+      document.querySelectorAll('[data-roles]').forEach(el => {
+        const roles = el.dataset.roles.split(',').map(x => x.trim());
+        el.style.display = roles.includes(currentUser.role) ? '' : 'none';
+      });
+      if (currentUser.role === 'auditor') {
+        document.querySelectorAll('[onclick="openInvoiceModal()"], #settingsForm button, #restoreInput').forEach(el => {
+          const wrap = el.closest('button,label') || el; if (wrap) wrap.style.display = 'none';
+        });
+      }
+      lucide.createIcons();
+    }
+    async function logoutApp() {
+      try { await api('/auth/logout', {method:'POST'}); } finally { window.location.href = '/login.html'; }
+    }
+    function openUserForm(){document.getElementById('userForm').classList.remove('hidden');}
+    function closeUserForm(){document.getElementById('userForm').classList.add('hidden'); document.getElementById('userForm').reset();}
+    async function loadUsers(){
+      if (!currentUser || currentUser.role !== 'admin') return;
+      try {
+        const users = await api('/users');
+        document.getElementById('usersTable').innerHTML = users.map(u => `<tr><td class="font-semibold">${escapeHtml(u.username)}</td><td>${escapeHtml(u.full_name)}</td><td><span class="badge bg-blue-50 text-blue-700">${escapeHtml(u.role)}</span></td><td><span class="badge ${u.is_active?'bg-emerald-50 text-emerald-700':'bg-red-50 text-red-700'}">${u.is_active?'Aktif':'Nonaktif'}</span></td><td>${u.last_login_at ? new Date(u.last_login_at).toLocaleString('id-ID') : '-'}</td><td><button class="btn btn-light" onclick="toggleUser('${u.id}',${u.is_active})">${u.is_active?'Nonaktifkan':'Aktifkan'}</button></td></tr>`).join('') || `<tr><td colspan="6" class="text-center text-slate-400">Belum ada user.</td></tr>`;
+      } catch(e){ showError('Gagal memuat user', e.message); }
+    }
+    document.getElementById('userForm').onsubmit = async e => {
+      e.preventDefault();
+      try {
+        await api('/users',{method:'POST',body:JSON.stringify({username:document.getElementById('userUsername').value.trim(),full_name:document.getElementById('userFullName').value.trim(),password:document.getElementById('userPassword').value,role:document.getElementById('userRole').value})});
+        closeUserForm(); await loadUsers(); showSuccess('User dibuat','Akun user berhasil dibuat.');
+      } catch(e){showError('Gagal membuat user',e.message);}
+    };
+    async function toggleUser(idv, enabled){
+      const ok = await confirmAction(enabled?'Nonaktifkan User?':'Aktifkan User?', enabled?'User tidak dapat login setelah dinonaktifkan.':'User dapat login kembali.', enabled);
+      if(!ok)return;
+      try{await api(`/users/${encodeURIComponent(idv)}/status`,{method:'PATCH',body:JSON.stringify({enabled:!enabled})}); await loadUsers(); showSuccess('Status user diperbarui','Perubahan berhasil disimpan.');}catch(e){showError('Gagal mengubah status',e.message);}
+    }
+    async function loadAuditLogs(){
+      if(!currentUser || !['admin','auditor'].includes(currentUser.role)) return;
+      try{const rows=await api('/audit-logs?limit=200'); document.getElementById('auditTable').innerHTML=rows.map(x=>`<tr><td>${new Date(x.created_at).toLocaleString('id-ID')}</td><td class="font-semibold">${escapeHtml(x.username||'-')}</td><td>${escapeHtml(x.action)}</td><td>${escapeHtml(x.module)}</td><td>${escapeHtml(x.description)}</td><td>${escapeHtml(x.ip_address||'-')}</td></tr>`).join('') || `<tr><td colspan="6" class="text-center text-slate-400">Belum ada aktivitas.</td></tr>`;}catch(e){showError('Gagal memuat audit trail',e.message);}
+    }
+
+    async function bootstrapApp() {
+      try { await initAuthUI(); await loadData(); applyPreset(); refresh(); }
+      catch (err) { console.error(err); if (err.message.includes('401')) window.location.href='/login.html'; }
+    }
+    bootstrapApp();
+  </script>
+</body>
+
+</html>
