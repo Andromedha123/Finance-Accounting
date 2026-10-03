@@ -878,6 +878,75 @@ app.post('/api/categories', requireRole('admin', 'staff'), async (req, res) => {
   }
 });
 
+app.put('/api/categories/:id', requireRole('admin','staff'), async (req, res) => {
+  try {
+    const oldName = clean(req.params.id);
+    const newName = clean(req.body?.name);
+
+    if (!oldName) {
+      return res.status(400).json({
+        message: 'Nama kategori lama wajib diisi.'
+      });
+    }
+
+    if (!newName) {
+      return res.status(400).json({
+        message: 'Nama kategori baru wajib diisi.'
+      });
+    }
+
+    if (oldName === newName) {
+      return res.json({
+        success: true,
+        message: 'Tidak ada perubahan.'
+      });
+    }
+
+    const existing = await pool.query(
+      `
+      SELECT id
+      FROM categories
+      WHERE LOWER(name) = LOWER($1)
+      LIMIT 1
+      `,
+      [newName]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(409).json({
+        message: 'Nama kategori sudah digunakan.'
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE categories
+      SET name = $1
+      WHERE name = $2
+      RETURNING id, name
+      `,
+      [newName, oldName]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Kategori tidak ditemukan.'
+      });
+    }
+
+    res.json({
+      success: true,
+      category: result.rows[0]
+    });
+
+  } catch (error) {
+    console.error('UPDATE CATEGORY ERROR:', error);
+
+    res.status(500).json({
+      message: 'Gagal memperbarui kategori.'
+    });
+  }
+});
 
 app.delete('/api/categories/:id', requireRole('admin'), async (req, res) => {
 
