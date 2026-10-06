@@ -354,7 +354,234 @@
       }
     }
 
+    /* =========================================================
+       PDF / PRINT REPORT
+       Desain dibuat mengikuti format laporan pada contoh gambar:
+       A4 Landscape, bersih, profesional, dan siap Save as PDF.
+    ========================================================= */
+    .pdf-only {
+      display: none;
+    }
+
+    /* =========================================================
+       SINGLE INVOICE PDF / PRINT
+       Dipakai saat user memilih 1 invoice dari Invoice Harian.
+    ========================================================= */
+    #invoicePrintArea {
+      display: none;
+    }
+
+    .invoice-pdf-sheet {
+      width: 100%;
+      background: #fff;
+      color: #24364B;
+      border: 1px solid #D9E2EC;
+      border-radius: 8px;
+      padding: 8mm 7mm 7mm;
+      box-sizing: border-box;
+    }
+
+    .invoice-pdf-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      padding-bottom: 7mm;
+      margin-bottom: 6mm;
+      border-bottom: 1px solid #D9E2EC;
+    }
+
+    .invoice-pdf-brand h2 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.25;
+      font-weight: 800;
+      color: #263F5C;
+    }
+
+    .invoice-pdf-brand p,
+    .invoice-pdf-title p {
+      margin: 5px 0 0;
+      font-size: 10px;
+      color: #64748B;
+    }
+
+    .invoice-pdf-title {
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .invoice-pdf-title h2 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 800;
+      color: #263F5C;
+    }
+
+    .invoice-pdf-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 8mm;
+    }
+
+    .invoice-pdf-stat-label {
+      font-size: 10px;
+      color: #64748B;
+      margin-bottom: 3px;
+    }
+
+    .invoice-pdf-stat-value {
+      font-size: 15px;
+      font-weight: 800;
+      color: #263F5C;
+    }
+
+    .invoice-pdf-section-title {
+      margin: 0 0 5mm;
+      font-size: 14px;
+      font-weight: 800;
+      color: #263F5C;
+    }
+
+    .invoice-pdf-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 10px;
+      margin-bottom: 7mm;
+    }
+
+    .invoice-pdf-table th {
+      text-align: left;
+      font-weight: 800;
+      color: #1E293B;
+      padding: 0 10px 8px;
+      border-bottom: 1px solid #CBD5E1;
+      white-space: nowrap;
+    }
+
+    .invoice-pdf-table td {
+      padding: 9px 10px;
+      vertical-align: top;
+      color: #334155;
+      border-bottom: 1px solid #EEF2F7;
+      word-break: break-word;
+    }
+
+    .invoice-pdf-table th:first-child,
+    .invoice-pdf-table td:first-child { padding-left: 12px; }
+
+    .invoice-pdf-table th:last-child,
+    .invoice-pdf-table td:last-child { padding-right: 12px; }
+
+    .invoice-pdf-signatures {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      margin-top: 15mm;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .invoice-pdf-signature-space {
+      height: 20mm;
+    }
+
     @media print {
+      body.print-invoice #printArea {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
+      body.print-invoice #invoicePrintArea,
+      body.print-invoice #invoicePrintArea * {
+        display: block !important;
+        visibility: visible !important;
+      }
+
+      body.print-invoice #invoicePrintArea {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+      }
+
+      body.print-invoice #invoicePrintArea .invoice-pdf-sheet {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 8mm 7mm 7mm !important;
+        border: 1px solid #D9E2EC !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+      }
+
+      body.print-invoice #invoicePrintArea .invoice-pdf-header {
+        display: flex !important;
+      }
+
+      body.print-invoice #invoicePrintArea .invoice-pdf-stats {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+      }
+
+      body.print-invoice #invoicePrintArea .invoice-pdf-signatures {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+      }
+
+      body.print-invoice #invoicePrintArea table {
+        display: table !important;
+      }
+
+      body.print-invoice #invoicePrintArea thead {
+        display: table-header-group !important;
+      }
+
+      body.print-invoice #invoicePrintArea tbody {
+        display: table-row-group !important;
+      }
+
+      body.print-invoice #invoicePrintArea tr {
+        display: table-row !important;
+      }
+
+      body.print-invoice #invoicePrintArea th,
+      body.print-invoice #invoicePrintArea td {
+        display: table-cell !important;
+      }
+
+      body.print-invoice #invoicePrintArea .invoice-pdf-page-break {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 9mm;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        background: #fff !important;
+      }
+
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        color: #24364B !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      /* Sembunyikan seluruh aplikasi, sisakan laporan saja. */
       body * {
         visibility: hidden !important;
       }
@@ -365,20 +592,201 @@
       }
 
       #printArea {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        background: #fff;
-        padding: 18px;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
       }
 
-      .no-print {
+      #printArea > .pdf-report {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 8mm 7mm 7mm !important;
+        background: #fff !important;
+        border: 1px solid #D9E2EC !important;
+        border-radius: 8px !important;
+        box-shadow: none !important;
+      }
+
+      #printArea .report-header {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 20px !important;
+        padding-bottom: 7mm !important;
+        margin-bottom: 6mm !important;
+        border-bottom: 1px solid #D9E2EC !important;
+      }
+
+      #printArea .report-brand {
+        min-width: 0 !important;
+      }
+
+      #printArea .report-brand h2 {
+        margin: 0 !important;
+        font-size: 18px !important;
+        line-height: 1.25 !important;
+        font-weight: 800 !important;
+        color: #263F5C !important;
+      }
+
+      #printArea .report-brand p {
+        margin: 5px 0 0 !important;
+        font-size: 10px !important;
+        color: #64748B !important;
+      }
+
+      #printArea .report-title {
+        text-align: right !important;
+        flex-shrink: 0 !important;
+      }
+
+      #printArea .report-title h2 {
+        margin: 0 !important;
+        font-size: 18px !important;
+        line-height: 1.25 !important;
+        font-weight: 800 !important;
+        color: #263F5C !important;
+      }
+
+      #printArea .report-title p {
+        margin: 4px 0 0 !important;
+        font-size: 10px !important;
+        color: #334155 !important;
+      }
+
+      #printArea .report-stats {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10mm !important;
+        margin: 0 0 7mm !important;
+      }
+
+      #printArea .report-stat {
+        padding: 0 !important;
+        background: transparent !important;
+      }
+
+      #printArea .report-stat p {
+        margin: 0 0 3px !important;
+        font-size: 9px !important;
+        color: #64748B !important;
+      }
+
+      #printArea .report-stat h3 {
+        margin: 0 !important;
+        font-size: 17px !important;
+        line-height: 1.25 !important;
+        color: #263F5C !important;
+        font-weight: 800 !important;
+      }
+
+      #printArea .report-section-title {
+        margin: 0 0 3mm !important;
+        font-size: 13px !important;
+        line-height: 1.3 !important;
+        font-weight: 800 !important;
+        color: #263F5C !important;
+      }
+
+      #printArea .report-table-wrap {
+        overflow: visible !important;
+        margin-bottom: 7mm !important;
+      }
+
+      #printArea table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+      }
+
+      #printArea th {
+        padding: 7px 8px !important;
+        background: #fff !important;
+        color: #1F2937 !important;
+        border-bottom: 1px solid #CBD5E1 !important;
+        font-size: 9px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase !important;
+        white-space: nowrap !important;
+      }
+
+      #printArea td {
+        padding: 8px !important;
+        border-top: 0 !important;
+        border-bottom: 0 !important;
+        color: #334155 !important;
+        font-size: 10px !important;
+        line-height: 1.35 !important;
+        vertical-align: middle !important;
+        word-break: normal !important;
+        overflow-wrap: anywhere !important;
+      }
+
+      #printArea #reportCategoryTable tr,
+      #printArea #reportTable tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      #printArea #reportCategoryTable tr:first-child td,
+      #printArea #reportTable tr:first-child td {
+        padding-top: 8px !important;
+      }
+
+      /* Lebar kolom agar tidak terlihat terlalu rapat. */
+      #printArea .category-report-table th:nth-child(1),
+      #printArea .category-report-table td:nth-child(1) { width: 28%; }
+      #printArea .category-report-table th:nth-child(2),
+      #printArea .category-report-table td:nth-child(2) { width: 23%; }
+      #printArea .category-report-table th:nth-child(3),
+      #printArea .category-report-table td:nth-child(3) { width: 27%; }
+      #printArea .category-report-table th:nth-child(4),
+      #printArea .category-report-table td:nth-child(4) { width: 22%; }
+
+      #printArea .detail-report-table th:nth-child(1),
+      #printArea .detail-report-table td:nth-child(1) { width: 6%; }
+      #printArea .detail-report-table th:nth-child(2),
+      #printArea .detail-report-table td:nth-child(2) { width: 12%; }
+      #printArea .detail-report-table th:nth-child(3),
+      #printArea .detail-report-table td:nth-child(3) { width: 17%; }
+      #printArea .detail-report-table th:nth-child(4),
+      #printArea .detail-report-table td:nth-child(4) { width: 15%; }
+      #printArea .detail-report-table th:nth-child(5),
+      #printArea .detail-report-table td:nth-child(5) { width: 13%; }
+      #printArea .detail-report-table th:nth-child(6),
+      #printArea .detail-report-table td:nth-child(6) { width: 11%; }
+      #printArea .detail-report-table th:nth-child(7),
+      #printArea .detail-report-table td:nth-child(7) { width: 15%; }
+      #printArea .detail-report-table th:nth-child(8),
+      #printArea .detail-report-table td:nth-child(8) { width: 11%; }
+
+      #printArea .report-signatures {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 35mm !important;
+        margin-top: 10mm !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        text-align: center !important;
+        font-size: 10px !important;
+      }
+
+      #printArea .report-signature-space {
+        height: 15mm !important;
+      }
+
+      #printArea .report-signatures p {
+        margin: 0 !important;
+      }
+
+      .no-print,
+      .pdf-only {
         display: none !important;
-      }
-
-      @page {
-        size: A4 landscape;
-        margin: 10mm;
       }
     }
   </style>
@@ -798,16 +1206,16 @@
           </div>
         </div>
         <div id="printArea">
-          <div class="card p-6">
-            <div class="flex justify-between items-start border-b pb-5">
-              <div>
+          <div class="card p-6 pdf-report">
+            <div class="flex justify-between items-start border-b pb-5 report-header">
+              <div class="report-brand">
                 <h2 class="text-xl font-bold" id="reportSPPG">
                   SPPG
                 </h2>
                 <p class="text-sm text-slate-500" id="reportAddress">
                 </p>
               </div>
-              <div class="text-right">
+              <div class="text-right report-title">
                 <h2 class="font-bold text-lg">
                   LAPORAN KEUANGAN
                 </h2>
@@ -815,8 +1223,8 @@
                 </p>
               </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5">
-              <div class="rounded-xl bg-slate-50 p-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 my-5 report-stats">
+              <div class="rounded-xl bg-slate-50 p-4 report-stat">
                 <p class="text-xs text-slate-500">
                   Jumlah Invoice
                 </p>
@@ -824,7 +1232,7 @@
                   0
                 </h3>
               </div>
-              <div class="rounded-xl bg-slate-50 p-4">
+              <div class="rounded-xl bg-slate-50 p-4 report-stat">
                 <p class="text-xs text-slate-500">
                   Total Pengeluaran
                 </p>
@@ -832,7 +1240,7 @@
                   Rp0
                 </h3>
               </div>
-              <div class="rounded-xl bg-slate-50 p-4">
+              <div class="rounded-xl bg-slate-50 p-4 report-stat">
                 <p class="text-xs text-slate-500">
                   Rata-rata / Invoice
                 </p>
@@ -841,11 +1249,11 @@
                 </h3>
               </div>
             </div>
-            <h3 class="font-bold mb-3">
+            <h3 class="font-bold mb-3 report-section-title">
               Rekap Kategori
             </h3>
-            <div class="table-wrap mb-6">
-              <table>
+            <div class="table-wrap mb-6 report-table-wrap">
+              <table class="category-report-table">
                 <thead>
                   <tr>
                     <th>
@@ -866,11 +1274,11 @@
                 </tbody>
               </table>
             </div>
-            <h3 class="font-bold mb-3">
+            <h3 class="font-bold mb-3 report-section-title">
               Detail Transaksi
             </h3>
-            <div class="table-wrap">
-              <table>
+            <div class="table-wrap report-table-wrap">
+              <table class="detail-report-table">
                 <thead>
                   <tr>
                     <th>
@@ -903,12 +1311,12 @@
                 </tbody>
               </table>
             </div>
-            <div class="mt-8 grid grid-cols-2 gap-20 text-center text-sm">
+            <div class="mt-8 grid grid-cols-2 gap-20 text-center text-sm report-signatures">
               <div>
                 <p>
                   Dibuat oleh,
                 </p>
-                <div class="h-16">
+                <div class="h-16 report-signature-space">
                 </div>
                 <p class="font-semibold" id="reportPrepared">
                   ________________
@@ -918,7 +1326,7 @@
                 <p>
                   Mengetahui,
                 </p>
-                <div class="h-16">
+                <div class="h-16 report-signature-space">
                 </div>
                 <p class="font-semibold" id="reportApproved">
                   ________________
@@ -1712,7 +2120,7 @@
     function renderInvoices() {
       let q = document.getElementById('invoiceSearch').value.toLowerCase(), f = document.getElementById('invoiceFrom').value, t = document.getElementById('invoiceTo').value;
       let arr = db.invoices.filter(x => (!q || (x.number + ' ' + supplierName(x.supplierId)).toLowerCase().includes(q)) && (!f || x.date >= f) && (!t || x.date <= t)).sort((a, b) => b.date.localeCompare(a.date));
-      document.getElementById('invoiceTable').innerHTML = arr.map(x => `<tr><td class="font-semibold text-blue-600">${escapeHtml(x.number)}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td>${x.items.length}</td><td class="font-semibold">${rupiah(invoiceTotal(x))}</td><td>${statusBadge(x.status)}</td><td><div class="flex gap-1"><button class="btn btn-light p-2" onclick="viewInvoice('${x.id}')"><i data-lucide="eye"></i></button><button class="btn btn-light p-2" onclick="openInvoiceModal('${x.id}')"><i data-lucide="pencil"></i></button><button class="btn btn-danger p-2" onclick="deleteInvoice('${x.id}')"><i data-lucide="trash-2"></i></button></div></td></tr>`).join('') || emptyRow(8); lucide.createIcons();
+      document.getElementById('invoiceTable').innerHTML = arr.map(x => `<tr><td class="font-semibold text-blue-600">${escapeHtml(x.number)}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td>${x.items.length}</td><td class="font-semibold">${rupiah(invoiceTotal(x))}</td><td>${statusBadge(x.status)}</td><td><div class="flex gap-1"><button class="btn btn-light p-2" title="Lihat invoice" onclick="viewInvoice('${x.id}')"><i data-lucide="eye"></i></button><button class="btn btn-light p-2" title="Generate PDF invoice ini" onclick="generateInvoicePDF('${x.id}')"><i data-lucide="file-down"></i></button><button class="btn btn-light p-2" title="Edit invoice" onclick="openInvoiceModal('${x.id}')"><i data-lucide="pencil"></i></button><button class="btn btn-danger p-2" title="Hapus invoice" onclick="deleteInvoice('${x.id}')"><i data-lucide="trash-2"></i></button></div></td></tr>`).join('') || emptyRow(8); lucide.createIcons();
     }
     function resetInvoiceFilter() {document.getElementById('invoiceSearch').value = ''; document.getElementById('invoiceFrom').value = ''; document.getElementById('invoiceTo').value = ''; renderInvoices()}
     async function deleteInvoice(v) {
@@ -1944,7 +2352,103 @@
       document.getElementById('reportCategoryTable').innerHTML = Object.entries(map).map(([k, v]) => `<tr><td>${escapeHtml(k)}</td><td>${v.count}</td><td>${rupiah(v.total)}</td><td>${total ? (v.total / total * 100).toFixed(1) : 0}%</td></tr>`).join('') || emptyRow(4);
       document.getElementById('reportTable').innerHTML = arr.map((x, i) => `<tr><td>${i + 1}</td><td>${fmtDate(x.date)}</td><td>${escapeHtml(x.number)}</td><td>${escapeHtml(supplierName(x.supplierId))}</td><td>${escapeHtml(x.category)}</td><td>${x.items.length}</td><td>${rupiah(invoiceTotal(x))}</td><td>${escapeHtml(x.status)}</td></tr>`).join('') || emptyRow(8);
     }
-    function exportPDF() {generateReport(); setTimeout(() => window.print(), 100)}
+    function generateInvoicePDF(invoiceId) {
+      const x = db.invoices.find(i => i.id === invoiceId);
+      if (!x) {
+        showError('Invoice tidak ditemukan', 'Invoice yang dipilih tidak tersedia.');
+        return;
+      }
+
+      const total = invoiceTotal(x);
+      const supplier = supplierName(x.supplierId);
+      const categoryTotal = total;
+      const settings = db.settings || {};
+
+      document.getElementById('invoicePdfSPPG').textContent = settings.name || 'SPPG';
+      document.getElementById('invoicePdfAddress').textContent = settings.location || '';
+      document.getElementById('invoicePdfPeriod').textContent = `Periode ${fmtDate(x.date)} s.d. ${fmtDate(x.date)}`;
+      document.getElementById('invoicePdfTotal').textContent = rupiah(total);
+      document.getElementById('invoicePdfAverage').textContent = rupiah(total);
+      document.getElementById('invoicePdfPrepared').textContent = settings.prepared || '________________';
+      document.getElementById('invoicePdfApproved').textContent = settings.approved || '________________';
+
+      document.getElementById('invoicePdfCategoryTable').innerHTML = `
+        <tr>
+          <td>${escapeHtml(x.category || '-')}</td>
+          <td>1</td>
+          <td>${rupiah(categoryTotal)}</td>
+          <td>100.0%</td>
+        </tr>`;
+
+      document.getElementById('invoicePdfDetailTable').innerHTML = `
+        <tr>
+          <td>1</td>
+          <td>${fmtDate(x.date)}</td>
+          <td>${escapeHtml(x.number)}</td>
+          <td>${escapeHtml(supplier)}</td>
+          <td>${escapeHtml(x.category || '-')}</td>
+          <td>${x.items.length}</td>
+          <td>${rupiah(total)}</td>
+          <td>${escapeHtml(x.status || '-')}</td>
+        </tr>`;
+
+      // Rincian item ditampilkan di bawah detail transaksi bila invoice memiliki lebih dari satu item.
+      const itemsHtml = x.items.map((item, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(item.name || '-')}</td>
+          <td>${item.qty}</td>
+          <td>${escapeHtml(item.unit || '-')}</td>
+          <td>${rupiah(item.price)}</td>
+          <td>${rupiah((+item.qty || 0) * (+item.price || 0))}</td>
+        </tr>`).join('');
+
+      document.getElementById('invoicePdfItemsBlock').innerHTML = `
+        <div style="font-size:12px;font-weight:800;color:#263F5C;margin-bottom:4mm;">Rincian Barang</div>
+        <table class="invoice-pdf-table" style="margin-bottom:0;">
+          <thead>
+            <tr>
+              <th style="width:7%;">NO</th>
+              <th style="width:35%;">BARANG</th>
+              <th style="width:12%;">QTY</th>
+              <th style="width:14%;">SATUAN</th>
+              <th style="width:16%;">HARGA</th>
+              <th style="width:16%;">SUBTOTAL</th>
+            </tr>
+          </thead>
+          <tbody>${itemsHtml}</tbody>
+        </table>
+        <div style="text-align:right;font-size:10px;margin-top:4mm;">
+          <div>Pajak/Biaya: <strong>${rupiah(x.tax || 0)}</strong></div>
+          <div style="font-size:14px;font-weight:800;margin-top:2mm;color:#263F5C;">TOTAL: ${rupiah(total)}</div>
+          <div style="margin-top:2mm;">Status: ${escapeHtml(x.status || '-')} &nbsp;•&nbsp; Pembayaran: ${escapeHtml(x.payment || '-')}</div>
+          ${x.notes ? `<div style="margin-top:3mm;text-align:left;background:#F8FAFC;padding:3mm;border-radius:5px;"><strong>Catatan:</strong> ${escapeHtml(x.notes)}</div>` : ''}
+        </div>`;
+
+      document.body.classList.add('print-invoice');
+      setTimeout(() => window.print(), 180);
+    }
+
+    window.addEventListener('afterprint', () => {
+      document.body.classList.remove('print-invoice');
+    });
+
+    function exportPDF() {
+      // Pastikan isi laporan terbaru sudah dirender sebelum membuka Print Preview.
+      generateReport();
+
+      // Browser akan menampilkan Print Preview. Pilih:
+      // Destination = Save to PDF, Paper = A4, Layout = Landscape.
+      // Untuk tampilan seperti contoh, aktifkan Headers and footers.
+      setTimeout(() => {
+        window.print();
+      }, 250);
+    }
+
+    // Memastikan report sudah diperbarui sebelum print dipanggil.
+    window.addEventListener('beforeprint', () => {
+      generateReport();
+    });
 
 
     function supplierOptions(selected = '') {return '<option value="">-</option>' + db.suppliers.map(s => `<option value="${s.id}" ${s.id === selected ? 'selected' : ''}>${escapeHtml(s.name)}</option>`).join('')}
@@ -2110,6 +2614,86 @@
     }
     bootstrapApp();
   </script>
+
+  <!-- =========================================================
+       PRINT AREA: SINGLE DAILY INVOICE
+       Diisi secara dinamis oleh generateInvoicePDF(invoiceId)
+  ========================================================== -->
+  <div id="invoicePrintArea" aria-hidden="true">
+    <div class="invoice-pdf-sheet">
+      <div class="invoice-pdf-header">
+        <div class="invoice-pdf-brand">
+          <h2 id="invoicePdfSPPG">SPPG</h2>
+          <p id="invoicePdfAddress"></p>
+        </div>
+        <div class="invoice-pdf-title">
+          <h2>LAPORAN KEUANGAN</h2>
+          <p id="invoicePdfPeriod"></p>
+        </div>
+      </div>
+
+      <div class="invoice-pdf-stats invoice-pdf-page-break">
+        <div>
+          <div class="invoice-pdf-stat-label">Jumlah Invoice</div>
+          <div class="invoice-pdf-stat-value">1</div>
+        </div>
+        <div>
+          <div class="invoice-pdf-stat-label">Total Pengeluaran</div>
+          <div class="invoice-pdf-stat-value" id="invoicePdfTotal"></div>
+        </div>
+        <div>
+          <div class="invoice-pdf-stat-label">Rata-rata / Invoice</div>
+          <div class="invoice-pdf-stat-value" id="invoicePdfAverage"></div>
+        </div>
+      </div>
+
+      <h3 class="invoice-pdf-section-title">Rekap Kategori</h3>
+      <table class="invoice-pdf-table invoice-pdf-page-break">
+        <thead>
+          <tr>
+            <th style="width: 24%;">KATEGORI</th>
+            <th style="width: 28%;">JUMLAH INVOICE</th>
+            <th style="width: 28%;">TOTAL</th>
+            <th style="width: 20%;">PERSENTASE</th>
+          </tr>
+        </thead>
+        <tbody id="invoicePdfCategoryTable"></tbody>
+      </table>
+
+      <h3 class="invoice-pdf-section-title">Detail Transaksi</h3>
+      <table class="invoice-pdf-table invoice-pdf-page-break">
+        <thead>
+          <tr>
+            <th style="width: 6%;">NO</th>
+            <th style="width: 12%;">TANGGAL</th>
+            <th style="width: 19%;">NO INVOICE</th>
+            <th style="width: 18%;">SUPPLIER</th>
+            <th style="width: 15%;">KATEGORI</th>
+            <th style="width: 10%;">JUMLAH ITEM</th>
+            <th style="width: 12%;">TOTAL</th>
+            <th style="width: 8%;">STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="invoicePdfDetailTable"></tbody>
+      </table>
+
+      <div id="invoicePdfItemsBlock" class="invoice-pdf-page-break" style="margin-top: 7mm;"></div>
+
+      <div class="invoice-pdf-signatures">
+        <div>
+          Dibuat oleh,
+          <div class="invoice-pdf-signature-space"></div>
+          <div id="invoicePdfPrepared">________________</div>
+        </div>
+        <div>
+          Mengetahui,
+          <div class="invoice-pdf-signature-space"></div>
+          <div id="invoicePdfApproved">________________</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 
 </html>
